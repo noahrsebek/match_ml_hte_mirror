@@ -1,45 +1,54 @@
 
 
-load_master_dataset <- function(addvars=T){
-  master_pool <- readr::read_csv("/export/projects/migrated-BAM/Match_AnalysisFiles_May2016/SourceFiles/2017/analysisdata_unique_20180111_SS_alldupes.csv")
-  master_pool <- master_pool %>%
-    filter(pilotblocks %in% c(0, NA)) %>%
-    distinct(sid, dmatch, study, randomized_date, .keep_all=T) %>% 
-    mutate(mathfailpercent_post1 = mathfail_post1 / math_courses_post1)
+load_master_dataset <- function(addvars=T,
+                                load_cached = T){
+  require(dplyr)
   
+  if (load_cached == T){
+    master_pool <- readr::read_csv("/export/projects/migrated-BAM/Match_AnalysisFiles_May2016/Results/2020/grf/master_dataset_cached.csv")
+  }  else {
+    master_pool <- readr::read_csv("/export/projects/migrated-BAM/Match_AnalysisFiles_May2016/SourceFiles/2017/analysisdata_unique_20180111_SS_alldupes.csv")
+    master_pool <- master_pool %>%
+      filter(pilotblocks %in% c(0, NA)) %>%
+      distinct(sid, dmatch, study, randomized_date, .keep_all=T) %>% 
+      mutate(mathfailpercent_post1 = mathfail_post1 / math_courses_post1)
+    
+    
+    if (addvars==T){
+      
+      # add graduation outcomes ----
+      graduation_df <- readr::read_csv('/export/projects/migrated-BAM/Match_AnalysisFiles_May2016/Results/2020/graduation_df.csv') %>% distinct()
+      grad_outcomes <- c('graduated_ontime', 'graduated_ever',
+                         'd_dropout', 'd_corrections', 'd_transfer', 'd_unknown',
+                         'd_noexit', 'd_deceased')
+      grad_outcome_labels <- c("Graduated On-Time", "Ever Graduated",
+                               "Leave code: Dropout", "Leave code: Corrections", "Leave code: Transfer", "Leave code: Unknown",
+                               "Leave code: No exit", "Leave code: Deceased")
+      master_pool <- master_pool %>% left_join(graduation_df[,c('sid', grad_outcomes)], by='sid')
+      
+      # making sure 'treated in year 2 [of study 1]' is NA for 
+      master_pool <- master_pool %>% mutate(treat_post2 = ifelse(study2==1, NA, treat_post2))
+      
+      
+      # if (drop_duplicates==T){
+      #   # get duplicate sids
+      #   duplicate_sids <- master_pool %>% 
+      #     group_by(sid) %>% filter(n()>1) %>% 
+      #     distinct(sid) %>% pull(sid)
+      #   
+      #   master_pool <- master_pool %>% filter(!sid %in% duplicate_sids)
+      # }
+      source('/export/projects/migrated-BAM/Match_AnalysisFiles_May2016/Results/2020/get_11th_grade_outcomes.R')
+      
+      master_w_11th_grade_outcomes <- get_11th_grade_outcomes() %>% select(sid, gpa11_math, eleventh_grade_math_z, study) %>% distinct()
+      
+      
+      master_pool <- master_pool %>% left_join(master_w_11th_grade_outcomes, by=c('sid', 'study'))}
+    
+  }
+  return(master_pool)
   
-  if (addvars==T){
-    
-    # add graduation outcomes ----
-    graduation_df <- readr::read_csv('/export/projects/migrated-BAM/Match_AnalysisFiles_May2016/Results/2020/graduation_df.csv') %>% distinct()
-    grad_outcomes <- c('graduated_ontime', 'graduated_ever',
-                       'd_dropout', 'd_corrections', 'd_transfer', 'd_unknown',
-                       'd_noexit', 'd_deceased')
-    grad_outcome_labels <- c("Graduated On-Time", "Ever Graduated",
-                             "Leave code: Dropout", "Leave code: Corrections", "Leave code: Transfer", "Leave code: Unknown",
-                             "Leave code: No exit", "Leave code: Deceased")
-    master_pool <- master_pool %>% left_join(graduation_df[,c('sid', grad_outcomes)], by='sid')
-    
-    # making sure 'treated in year 2 [of study 1]' is NA for 
-    master_pool <- master_pool %>% mutate(treat_post2 = ifelse(study2==1, NA, treat_post2))
-    
-    
-    # if (drop_duplicates==T){
-    #   # get duplicate sids
-    #   duplicate_sids <- master_pool %>% 
-    #     group_by(sid) %>% filter(n()>1) %>% 
-    #     distinct(sid) %>% pull(sid)
-    #   
-    #   master_pool <- master_pool %>% filter(!sid %in% duplicate_sids)
-    # }
-    source('/export/projects/migrated-BAM/Match_AnalysisFiles_May2016/Results/2020/get_11th_grade_outcomes.R')
-    
-    master_w_11th_grade_outcomes <- get_11th_grade_outcomes() %>% select(sid, gpa11_math, eleventh_grade_math_z, study) %>% distinct()
-    
-    
-    master_pool <- master_pool %>% left_join(master_w_11th_grade_outcomes, by=c('sid', 'study'))}
-  
-  return(master_pool)}
+}
 
 # --> outcomes of interest (and labels)
 outcomes_of_interest <- c('mathxil_z_post1_np',
