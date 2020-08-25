@@ -19,6 +19,7 @@ library(kableExtra)
 library(ggplot2)
 library(knitr)
 library(dplyr)
+library(grf)
 
 Sys.setenv(
   PATH = paste(
@@ -269,7 +270,7 @@ process_forests <- function(forests){
       make_quartile_baseline_table(forest = forests[[outcome_label]])
     forests[[outcome_label]]$subsample_ate_table <- forests[[outcome_label]] %>% make_ate_summary_table()
     forests[[outcome_label]]$subsample_difference_table <- forests[[outcome_label]] %>% make_subsample_difference_table()
-    forests[[outcome_label]]$calibration_plot <- forests[[outcome_label]] %>% make_calibration_plot(outcome_label)
+    forests[[outcome_label]]$calibration_plot <- forests[[outcome_label]] %>% make_calibration_plot(outcome_and_label_list[[outcome_label]])
   }
   
   return(forests)
@@ -290,7 +291,7 @@ print_forests <- function(forest_list){
     
     cat("PTEs are also denoted $\\hat{\\tau}^{(-i)}(X_i)$, or the estimate of individual $i$'s $\\hat{\\tau}$ calculated from our fitted forest. The superscript $(-i)$ denotes cross-fitting, eg 'that the observation is computed by leaving observation *i* out'.\n")
     
-    cat("We also can calculate the average treatment effect (ATE) $\\hat{\\tau}$ from our fitted forest (done using the double robust method presented by Athey et. al. We present these ATEs below, including the ATEs calculated for those students identified in our PTE quartiles")
+    cat("We also can calculate the average treatment effect (ATE) $\\hat{\\tau}$ from our fitted forest (done using the double robust method presented by Athey et. al. We present these ATEs below, including the ATEs calculated for those students identified in our PTE quartiles. ")
     
     
     overall_effect <- forest_list[[i]]$group_tau_avgs['overall.estimate'] %>% round(3)
@@ -298,8 +299,7 @@ print_forests <- function(forest_list){
     cat("Our causal forest estimates an overall average treatment effect of ",
         overall_effect, paste0("(", overall_effect_se,")."))
     
-    forest_list[[i]]$calibration_test %>% make_calibration_text() %>% cat()
-    cat("^[", calibration_footnote,"] ")
+    cat("^[",  forest_list[[i]]$calibration_test %>% make_calibration_text(),  calibration_footnote,"] ")
     cat('\n')
     
     
@@ -318,20 +318,24 @@ print_forests <- function(forest_list){
             caption = paste0("Differences between subsample average treatment effects: ", names(forest_list)[i])) %>%
       kable_styling(latex_options = c('striped', 'HOLD_position')) %>% print()
     
+    
+    
+    
     cat('\n')
+    cat("\\begin{verbatim}")
+    forest_list[[i]]$tuning_output %>% print() %>%  cat("\n")
+    cat("\\end{verbatim}")
     
-    
-
     #forest_list[[i]] %>%  make_group_diff_sentence %>% cat()
 
-    #cat('\n')
+    cat('\n')
 
     forest_list[[i]]$quartile_heterogeneity_table %>%
       kable(booktabs=T, escape=F, digits=3,
             caption = paste0("Summary table by Quartile of Predicted Treatment Effects on ", names(forest_list)[i])) %>%
       kable_styling(latex_options = c('striped', 'scale_down', 'HOLD_position')) %>% print()
 
-    forest_list[[i]]$tuning_output$params %>% cat()
+
 
     cat('\\newpage')
     cat('\n')
@@ -409,7 +413,7 @@ processed_forests %>% print_forests()
 
 # Decile Heatmaps
 
-```{r, results='asis', include=T, echo=F, fig.height=4.4, fig.width=7,  warning=F}
+```{r, results='asis', include=T, echo=F, fig.height=4.4, fig.width=7.5,  warning=F}
 for (comparison in all_pte_quantile_plots){
   
   for (plot in comparison){
