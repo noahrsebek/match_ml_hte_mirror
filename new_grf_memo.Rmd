@@ -21,6 +21,8 @@ library(knitr)
 library(dplyr)
 library(grf)
 
+as_factor <- forcats::as_factor
+
 Sys.setenv(
   PATH = paste(
     "/export/opt/texlive/2018/bin/x86_64-linux",
