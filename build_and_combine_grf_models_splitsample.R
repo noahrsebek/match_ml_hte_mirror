@@ -4,24 +4,18 @@ library('grf')
 library('tidyr')
 library('magrittr')
 library('ggplot2')
-
+library('furrr')
+library('purrr')
 
 
 n_splitsample_iterations <- 10
 splitsample_fraction <- 0.5
-
-
-
-
-
-
-
-
-default_sample_fraction <- 0.5
 default_n_trees <- 5000
 to_cluster <- F
 drop_duplicates <- T
 set.seed(20200529)
+
+
 
 filename <- "grf/final_forests_missingness"
 
@@ -105,9 +99,10 @@ make_single_causal_forest <- function(dataset,
                                       cluster=to_cluster,
                                       add_all_interactions = F,
                                       remove_duplicates=drop_duplicates,
-                                      tune_num_reps = 1000,
-                                      tune_num_draws = 2000,
-                                      tune_num_trees = 200){
+                                      tune_num_reps = 50,
+                                      tune_num_draws = 1000,
+                                      tune_num_trees = 200
+                                      ){
   
   
   if (remove_duplicates==T){
@@ -234,16 +229,17 @@ make_single_causal_forest <- function(dataset,
   # - plot: prediction vs rank plot
   
   
-  output_list <- list('tau_df' = tau_df,
-                      'augmented_df' = augmented_df,
-                      #'quartile_heterogeneity_table' = quartile_heterogeneity_table,
-                      #'tau_rank_plot'=tau_rank_plot,
-                      'group_tau_avgs'=group_tau_avgs,
-                      'subsample_tau_avgs'=subsample_tau_avgs,
-                      #'forest_object'=tau.forest,
-                      'calibration_test'=forest_calibration,
-                      'n_observations' = n.obs,
-                      'tuning_output' = tau.forest$tuning.output)
+  output_list <- list(
+    # 'tau_df' = tau_df,
+    # 'augmented_df' = augmented_df,
+    #'quartile_heterogeneity_table' = quartile_heterogeneity_table,
+    #'tau_rank_plot'=tau_rank_plot,
+    'group_tau_avgs'=group_tau_avgs,
+    'subsample_tau_avgs'=subsample_tau_avgs,
+    #'forest_object'=tau.forest,
+    'calibration_test'=forest_calibration,
+    'n_observations' = n.obs,
+    'tuning_output' = tau.forest$tuning.output)
   
   return(output_list)  
 }
@@ -265,69 +261,58 @@ master_pool <- master_pool %>%
 
 
 
-
-# question: % of missing values for these variables?
-master_pool[,controls] %>% is.na() %>% colSums()
-
-
-# let's impute these variables
-#master_pool_imputed <- master_pool %>% impute_block_baselines(controls, type='mean')
+# running models ----
+start_time <- Sys.time()
+# setting up furr plan
+plan(multisession, workers = 10)
 
 
+# setting sequential seeds
+
+input_dataset <- master_pool
+input_controls <- controls_sans_missingness_dummies
 
 
+all_outcome_splitsample_lists <- list()
 
-
-
-
-make_forest_for_each_outcome <- function(input_dataset,
-                                         input_controls,
-                                         outcomes,
-                                         outcome_labels,
-                                         flipped_outcomes=c()){
-  final_forest_list <- list()
+for (i in 1:length(outcomes_of_interest)){
+  # make run splitsample forest function with this outcome
   
-  for (i in 1:length(outcomes_of_interest)){
+  current_outcome_of_interest <- outcomes_of_interest[i]
+  current_outcome_label <- outcomes_of_interest_labels[i]
+  
+  run_splitsample_forest <- function(seed,
+                                     current_outcome = current_outcome_of_interest,
+                                     outcome_label = current_outcome_label,
+                                     flipped_outcome_list = flipped_outcomes){
+    # set seed
+    set.seed(seed)
     
-    current_outcome <- outcomes[i]
-    current_outcome_label <- outcome_labels[i]
-    cat("Running: ", current_outcome)
-    if (current_outcome %in% flipped_outcomes){
+    # run single causal forest function
+    if (current_outcome %in% flipped_outcome_list){
       single_forest_output <- make_single_causal_forest(dataset = input_dataset,
                                                         controls = input_controls,
                                                         outcome = current_outcome,
-                                                        outcome_label = current_outcome_label,
+                                                        outcome_label = outcome_label,
                                                         flip_outcome = T)
     } else {
       single_forest_output <- make_single_causal_forest(dataset = input_dataset,
                                                         controls = input_controls,
                                                         outcome = current_outcome,
-                                                        outcome_label = current_outcome_label)
+                                                        outcome_label = outcome_label)
     }
     
-
-    
-    final_forest_list[[current_outcome_label]] <- single_forest_output
-    
+    return(single_forest_output) 
   }
   
-  return(final_forest_list)
+  # run it as many times as we want using 
+  splitsample_iterations <- future_map(1:n_splitsample_iterations, run_splitsample_forest)
+  
+  all_outcome_splitsample_lists[[i]] <- splitsample_iterations
 }
 
-# # function arguments
-# input_dataset <- master_pool_imputed
-# input_controls <- controls
-# outcomes <- outcomes_of_interest
-# outcome_labels <- outcomes_of_interest
-
-
-start_time <- Sys.time()
-final_forests_missingness <- make_forest_for_each_outcome(master_pool,
-                                                          controls_sans_missingness_dummies,
-                                                          outcomes_of_interest,
-                                                          outcomes_of_interest_labels,
-                                                          flipped_outcomes)
 end_time <- Sys.time()
+
 
 
 # saveRDS(final_forests_missingness, file=paste0(filename, ".rds"))
