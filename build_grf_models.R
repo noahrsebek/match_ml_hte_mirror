@@ -9,7 +9,7 @@ library('ggplot2')
 
 
 default_sample_fraction <- 0.5
-default_n_trees <- 100000
+default_n_trees <- 5000
 to_cluster <- F
 drop_duplicates <- T
 set.seed(20200529)
@@ -345,12 +345,14 @@ make_forest_for_each_outcome <- function(input_dataset,
 #                              outcomes_of_interest,
 #                              outcomes_of_interest_labels)
 
+
+start_time <- Sys.time()
 final_forests_missingness <- make_forest_for_each_outcome(master_pool,
                                                           controls_sans_missingness_dummies,
                                                           outcomes_of_interest,
                                                           outcomes_of_interest_labels,
                                                           flipped_outcomes)
-
+end_time <- Sys.time()
 
 # saveRDS(final_forests_imputed, file='grf/final_forests_imputed.rds')
 saveRDS(final_forests_missingness, file=paste0(filename, ".rds"))
