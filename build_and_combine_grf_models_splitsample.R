@@ -8,12 +8,11 @@ library('furrr')
 library('purrr')
 
 
-n_splitsample_iterations <- 10
+n_splitsample_iterations <- 2
 splitsample_fraction <- 0.5
-default_n_trees <- 5000
+default_n_trees <- 50
 to_cluster <- F
 drop_duplicates <- T
-set.seed(20200529)
 
 
 
@@ -90,6 +89,112 @@ add_pairwise_interactions <- function(data, list_of_controls){
 }
 
 
+get_group_avg_tau_conf_interval <- function(group1, group2){
+  group1[["estimate"]] - group2[["estimate"]] +
+    c(-1, 1) * qnorm(0.975) * sqrt(group1[["std.err"]]^2 + group2[["std.err"]]^2)
+}
+
+clean_estimate_w_95_conf_intervals <- function(est, se){
+  paste0(round( est , 3), " +/- ", round( qnorm(0.975) * se , 3))
+}
+
+
+make_quartile_baseline_table <- function(input_augmented_df,
+                                         subsample_tau_avgs,
+                                         baselines = table_baselines,
+                                         baselines_labels = table_baselines_labels){
+  quartile_baseline_table <- list()
+  
+  tau_avgs <- subsample_tau_avgs
+  tau_avg_df <- tribble(~tau_quartile, ~avg,
+                        1, tau_avgs$quartile_1[['estimate']],
+                        2, tau_avgs$quartile_2[['estimate']],
+                        3, tau_avgs$quartile_3[['estimate']],
+                        4, tau_avgs$quartile_4[['estimate']])
+  
+  for (quartile in 1:4){
+    
+    # get N in quartile and get avg tau hat 
+    n_quart <- input_augmented_df %>% filter(tau_quartile %in% quartile) %>% nrow()
+    avg_tau_hat <- input_augmented_df %>% filter(tau_quartile %in% quartile) %>% pull(grf_tau_hat) %>% mean(na.rm=T)
+    #avg_tau_hat <- tau_avg_df %>% filter(tau_quartile %in% quartile) %>% pull(avg)
+    
+    # make column name
+    col_name <- paste0("$\\hat{\\tau}$ Quartile ", quartile)
+    temp_quart_column <- c(avg_tau_hat, n_quart)
+    
+    for (bl_var in baselines){
+      mean_val <- input_augmented_df %>% filter(tau_quartile %in% quartile) %>% pull(bl_var) %>% mean(na.rm=T)
+      temp_quart_column <- c(temp_quart_column, mean_val)
+    }
+    quartile_baseline_table[[col_name]] <- temp_quart_column
+  }
+  
+  quartile_baseline_table <- quartile_baseline_table %>% as_tibble()
+  quartile_baseline_table <- bind_cols(
+    tibble(Baseline = c("\\textit{Mean} $\\hat{\\tau}$",
+                        "\\textit{N}",
+                        baselines_labels)),
+    quartile_baseline_table)
+  
+  return(quartile_baseline_table)
+}
+
+
+
+make_ate_summary_table <- function(subsample_tau_avgs,
+                                   group_tau_avgs){
+  
+  subsample_ATEs_mean_se <- subsample_tau_avgs
+  
+  quartile_95_ci_col <- c()
+  quartile_se_col <- c()
+  for (i in 4:1){
+    current_quartile <- paste0('quartile_', i)
+    current_ATE <- subsample_ATEs_mean_se[[current_quartile]]
+    quartile_95_ci_col <- c(quartile_95_ci_col,
+                            current_ATE[1])
+    quartile_se_col <- c(quartile_se_col, current_ATE[[2]])
+  }
+  
+  
+  
+  
+  # Quartile
+  ate_95ci_table_pte_quartiles <- tibble('Sample'  = paste("Individual PTE Quartile", 4:1),
+                                         "Avg. Treatment Effect" = quartile_95_ci_col,
+                                         "Standard Error" = quartile_se_col)
+  
+  # Overall
+  ate_95ci_table_overall <- tibble("Sample" = "Whole Sample",
+                                   "Avg. Treatment Effect" = group_tau_avgs['overall.estimate'],
+                                   "Standard Error" = group_tau_avgs['overall.std.err'])
+  
+  # Other subgroups
+  other_subgroups <- c("above_median", "below_median", "bottom_three_quartiles")
+  other_subgroup_labels <- c("Top 2 PTE Quartiles", "Bottom 2 PTE Quartiles", "Bottom 3 PTE Quartiles")
+  
+  other_subgroup_95_ci_col <- c()
+  other_subgroup_se_col <- c()
+  
+  for (group in other_subgroups){
+    current_ATE <- subsample_ATEs_mean_se[[group]]
+    other_subgroup_95_ci_col <- c(other_subgroup_95_ci_col,
+                                  current_ATE[1])
+    other_subgroup_se_col <- c(other_subgroup_se_col, current_ATE[2])
+  }
+  
+  ate_95ci_table_subgroup <- tibble('Sample'  = other_subgroup_labels,
+                                    "Avg. Treatment Effect" = other_subgroup_95_ci_col,
+                                    "Standard Error" = other_subgroup_se_col)
+  
+  
+  
+  bind_rows(ate_95ci_table_overall,
+            ate_95ci_table_pte_quartiles,
+            ate_95ci_table_subgroup)
+}
+
 
 make_single_causal_forest <- function(dataset,
                                       controls,
@@ -101,7 +206,8 @@ make_single_causal_forest <- function(dataset,
                                       remove_duplicates=drop_duplicates,
                                       tune_num_reps = 50,
                                       tune_num_draws = 1000,
-                                      tune_num_trees = 200
+                                      tune_num_trees = 200,
+                                      splitsample_frac = splitsample_fraction
                                       ){
   
   
@@ -116,14 +222,15 @@ make_single_causal_forest <- function(dataset,
   
   
   # keep observations complete on outcome and that has an inv prob weight
-  working_df <- dataset %>% drop_na(outcome, inv_prob_weight)
+  working_df <- dataset %>% drop_na(outcome, inv_prob_weight) %>% sample_frac(splitsample_frac)
   
   n.obs <- nrow(working_df)
   
   X <- working_df[,controls]
   W <- working_df %>% pull(dmatch)
-  Y <- working_df %>% pull(outcome)
+  Y <- working_df %>% pull(tidyselect::all_of(outcome))
   sample_weights <- working_df %>% pull(inv_prob_weight)
+  
   cluster_ids <- working_df %>% pull(sid) # we have pooled the data, and with duplicates, we should cluster on sid
   
   
@@ -139,7 +246,7 @@ make_single_causal_forest <- function(dataset,
                                 min.node.size = 5,
                                 sample.weights = sample_weights,
                                 clusters = cluster_ids,
-                                sample.fraction = default_sample_fraction,
+                                #sample.fraction = default_sample_fraction,
                                 num.trees = default_n_trees,
                                 tune.num.trees = tune_num_trees,
                                 tune.num.draws = tune_num_draws,
@@ -153,7 +260,7 @@ make_single_causal_forest <- function(dataset,
                                 min.node.size = 5,
                                 sample.weights = sample_weights,
                                 #clusters = cluster_ids,
-                                sample.fraction = default_sample_fraction,
+                                #sample.fraction = default_sample_fraction,
                                 num.trees = default_n_trees,
                                 tune.num.trees = tune_num_trees,
                                 tune.num.draws = tune_num_draws,
@@ -229,6 +336,17 @@ make_single_causal_forest <- function(dataset,
   # - plot: prediction vs rank plot
   
   
+  # quartile baseline table
+  quartile_heterogeneity_table <- augmented_df %>% make_quartile_baseline_table(subsample_tau_avgs)
+  
+  # subsample ate table
+  subsample_ate_table <- subsample_tau_avgs %>% make_ate_summary_table(group_tau_avgs)
+  
+  # subsample difference table
+  
+  # 
+  
+  
   output_list <- list(
     # 'tau_df' = tau_df,
     # 'augmented_df' = augmented_df,
@@ -236,10 +354,12 @@ make_single_causal_forest <- function(dataset,
     #'tau_rank_plot'=tau_rank_plot,
     'group_tau_avgs'=group_tau_avgs,
     'subsample_tau_avgs'=subsample_tau_avgs,
+    'subsample_ate_table' = subsample_ate_table,
     #'forest_object'=tau.forest,
     'calibration_test'=forest_calibration,
     'n_observations' = n.obs,
-    'tuning_output' = tau.forest$tuning.output)
+    'tuning_output' = tau.forest$tuning.output,
+    'quartile_heterogeneity_table' = quartile_heterogeneity_table)
   
   return(output_list)  
 }
@@ -267,7 +387,7 @@ start_time <- Sys.time()
 plan(multisession, workers = 10)
 
 
-# setting sequential seeds
+# setting u + running w sequential seeds
 
 input_dataset <- master_pool
 input_controls <- controls_sans_missingness_dummies
@@ -275,7 +395,7 @@ input_controls <- controls_sans_missingness_dummies
 
 all_outcome_splitsample_lists <- list()
 
-for (i in 1:length(outcomes_of_interest)){
+for (i in 1:length(outcomes_of_interest[1:2])){
   # make run splitsample forest function with this outcome
   
   current_outcome_of_interest <- outcomes_of_interest[i]
@@ -312,6 +432,8 @@ for (i in 1:length(outcomes_of_interest)){
 }
 
 end_time <- Sys.time()
+
+
 
 
 
