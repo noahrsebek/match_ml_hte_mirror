@@ -1,0 +1,431 @@
+---
+title: "GRF for Saga/Match Treatment Heterogeneity"
+author: ""
+#date: "May 29, 2020"
+output: pdf_document
+fontsize: 9pt
+geometry: margin=0.75in
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(warning = F, message = F)
+
+
+use_clusters = F
+no_dupes = T
+
+library(kableExtra)
+library(ggplot2)
+library(knitr)
+library(dplyr)
+library(grf)
+
+as_factor <- forcats::as_factor
+
+Sys.setenv(
+  PATH = paste(
+    "/export/opt/texlive/2018/bin/x86_64-linux",
+    Sys.getenv("PATH"),
+    sep = ":"
+  )
+)
+
+
+
+
+setwd("/export/projects/migrated-BAM/Match_AnalysisFiles_May2016/Results/2020/grf")
+source('grf_globals.R')
+
+master_pool <- load_master_dataset()
+
+
+make_quartile_baseline_table <- function(input_augmented_df,
+                                         forest,
+                                         baselines = table_baselines,
+                                         baselines_labels = table_baselines_labels){
+  quartile_baseline_table <- list()
+  
+  tau_avgs <- forest$subsample_tau_avgs
+  tau_avg_df <- tribble(~tau_quartile, ~avg,
+                        1, tau_avgs$quartile_1[['estimate']],
+                        2, tau_avgs$quartile_2[['estimate']],
+                        3, tau_avgs$quartile_3[['estimate']],
+                        4, tau_avgs$quartile_4[['estimate']])
+  
+  for (quartile in 1:4){
+    
+    # get N in quartile and get avg tau hat 
+    n_quart <- input_augmented_df %>% filter(tau_quartile %in% quartile) %>% nrow()
+    avg_tau_hat <- input_augmented_df %>% filter(tau_quartile %in% quartile) %>% pull(grf_tau_hat) %>% mean(na.rm=T)
+    #avg_tau_hat <- tau_avg_df %>% filter(tau_quartile %in% quartile) %>% pull(avg)
+    
+    # make column name
+    col_name <- paste0("$\\hat{\\tau}$ Quartile ", quartile)
+    temp_quart_column <- c(avg_tau_hat, n_quart)
+    
+    for (bl_var in baselines){
+      mean_val <- input_augmented_df %>% filter(tau_quartile %in% quartile) %>% pull(bl_var) %>% mean(na.rm=T)
+      temp_quart_column <- c(temp_quart_column, mean_val)
+    }
+    quartile_baseline_table[[col_name]] <- temp_quart_column
+  }
+  
+  quartile_baseline_table <- quartile_baseline_table %>% as_tibble()
+  quartile_baseline_table <- bind_cols(
+    tibble(Baseline = c("\\textit{Mean} $\\hat{\\tau}$",
+                        "\\textit{N}",
+                        baselines_labels)),
+    quartile_baseline_table)
+  
+  return(quartile_baseline_table)
+}
+
+
+
+
+
+make_tau_rank_order_plot <- function(forest, outcome_label){
+  
+  tau_avgs <- forest$subsample_tau_avgs
+  
+  overall_n <- forest$n_observations
+    
+  tau_df <- forest$tau_df %>% mutate(avg_tau_hat = case_when(
+    tau_quartile == 1 ~ tau_avgs$quartile_1['estimate'],
+    tau_quartile == 2 ~ tau_avgs$quartile_2['estimate'],
+    tau_quartile == 3 ~ tau_avgs$quartile_3['estimate'],
+    tau_quartile == 4 ~ tau_avgs$quartile_4['estimate']))
+  
+  tau_rank_plot_df <- tau_df %>% arrange(grf_tau_hat) %>% mutate(order=1:n())
+  
+  tau_rank_plot_summary_df <- tau_rank_plot_df %>% group_by(tau_quartile) %>%
+    summarize(min_pred = min(grf_tau_hat),
+              min_rank = min(order),
+              avg_pred = mean(grf_tau_hat),
+              #avg_pred = mean(avg_tau_hat),
+              avg_rank = mean(order)) %>%
+    mutate(q_name = paste0("Q", tau_quartile, " avg: ", round(avg_pred, 3)))
+  
+  
+  tau_rank_plot <- tau_rank_plot_df %>% ggplot(aes(x=order, y=grf_tau_hat)) +
+    geom_line() +
+    geom_line(aes(x=order, y=grf_tau_hat + 1.96*grf_sd), alpha = 0.2) +
+    geom_line(aes(x=order, y=grf_tau_hat - 1.96*grf_sd), alpha = 0.2) +
+    geom_vline(data=tau_rank_plot_summary_df, #%>% filter(! tau_quartile %in% 1),
+               aes(group=tau_quartile, xintercept = min_rank),
+               linetype='dotted', color='gray20') + 
+    geom_hline(yintercept = 0, linetype='dashed') +
+    ylab(expression("Individual Predicted Treatment Effect"~hat(tau)^(-i)~(X[i]))) +
+    xlab('Reverse-rank of sorted Predicted Treatment Effects') +
+    theme_minimal() +
+    ggtitle(paste0(outcome_label, ": Predicted Treatment Effect vs Rank, N=", overall_n)) +
+    geom_text(data=tau_rank_plot_summary_df, aes(label=q_name, y=avg_pred+0.05, x=avg_rank))
+  
+  return(tau_rank_plot)
+}
+
+
+get_group_avg_tau_conf_interval <- function(group1, group2){
+  group1[["estimate"]] - group2[["estimate"]] +
+  c(-1, 1) * qnorm(0.975) * sqrt(group1[["std.err"]]^2 + group2[["std.err"]]^2)
+}
+
+clean_estimate_w_95_conf_intervals <- function(est, se){
+  paste0(round( est , 3), " +/- ", round( qnorm(0.975) * se , 3))
+}
+
+make_ate_summary_table <- function(input_forest){
+  subsample_ATEs_mean_se <- input_forest$subsample_tau_avgs
+  
+  quartile_95_ci_col <- c()
+  quartile_se_col <- c()
+  for (i in 4:1){
+    current_quartile <- paste0('quartile_', i)
+    current_ATE <- subsample_ATEs_mean_se[[current_quartile]]
+    quartile_95_ci_col <- c(quartile_95_ci_col,
+                            clean_estimate_w_95_conf_intervals(current_ATE[1], current_ATE[2]))
+    quartile_se_col <- c(quartile_se_col, round(current_ATE[[2]], 3))
+  }
+  
+  
+  
+  
+  # Quartile
+  ate_95ci_table_pte_quartiles <- tibble('Sample'  = paste("Individual PTE Quartile", 4:1),
+                                         "Avg. Treatment Effect with 95\\% Conf. Intervals" = quartile_95_ci_col,
+                                         "Standard Error" = quartile_se_col)
+  
+  # Overall
+  ate_95ci_table_overall <- tibble("Sample" = "Whole Sample",
+                                   "Avg. Treatment Effect with 95\\% Conf. Intervals" =
+                                     clean_estimate_w_95_conf_intervals(
+                                       input_forest$group_tau_avgs['overall.estimate'],
+                                       input_forest$group_tau_avgs['overall.std.err']),
+                                   "Standard Error" = round(input_forest$group_tau_avgs['overall.std.err'], 3))
+  
+  # Other subgroups
+  other_subgroups <- c("above_median", "below_median", "bottom_three_quartiles")
+  other_subgroup_labels <- c("Top 2 PTE Quartiles", "Bottom 2 PTE Quartiles", "Bottom 3 PTE Quartiles")
+  
+  other_subgroup_95_ci_col <- c()
+  other_subgroup_se_col <- c()
+  
+  for (group in other_subgroups){
+    current_ATE <- subsample_ATEs_mean_se[[group]]
+    other_subgroup_95_ci_col <- c(other_subgroup_95_ci_col,
+                                  clean_estimate_w_95_conf_intervals(current_ATE[1], current_ATE[2]))
+    other_subgroup_se_col <- c(other_subgroup_se_col, round(current_ATE[[2]], 3))
+  }
+  
+  ate_95ci_table_subgroup <- tibble('Sample'  = other_subgroup_labels,
+                                    "Avg. Treatment Effect with 95\\% Conf. Intervals" = other_subgroup_95_ci_col,
+                                    "Standard Error" = other_subgroup_se_col)
+  
+  
+  
+  bind_rows(ate_95ci_table_overall,
+            ate_95ci_table_pte_quartiles,
+            ate_95ci_table_subgroup)
+}
+
+
+make_group_diff_sentence <- function(single_forest){
+  
+  highest_quartile_vs_rest_ci <- get_group_avg_tau_conf_interval(
+    single_forest$subsample_tau_avgs$highest_quartile,
+    single_forest$subsample_tau_avgs$bottom_three_quartiles) %>% round(3)
+  
+  above_median_vs_below_ci <- get_group_avg_tau_conf_interval(
+    single_forest$subsample_tau_avgs$above_median, 
+    single_forest$subsample_tau_avgs$below_median) %>% round(3)
+  
+  top_vs_bottom_ci <- get_group_avg_tau_conf_interval(
+    single_forest$subsample_tau_avgs$quartile_4,
+    single_forest$subsample_tau_avgs$quartile_1) %>% round(3)
+  
+  
+  group_diff_sentence <- paste0("The 95% confidence interval for the difference in predicted treatment effect between the highest quartile group and the bottom 3 quartiles is [",
+                                paste(highest_quartile_vs_rest_ci, collapse=", "), "]. The 95% confidence interval for the difference between the above-median and",
+                                " below-median group is [", paste(above_median_vs_below_ci, collapse=", "), "]. The 95% confidence interval for the difference between the top quartile and bottom quartile is [", paste(top_vs_bottom_ci, collapse=", "), "]."
+  )
+  
+  return(group_diff_sentence)
+  
+}
+
+
+
+clean_diff <- function(diff_vector){paste0("[", paste(diff_vector, collapse=", "), "]")}
+
+
+
+
+
+make_subsample_difference_table <- function(input_forest){
+  
+  highest_quartile_vs_rest_ci <- get_group_avg_tau_conf_interval(
+    input_forest$subsample_tau_avgs$highest_quartile,
+    input_forest$subsample_tau_avgs$bottom_three_quartiles) %>% round(3)
+  
+  above_median_vs_below_ci <- get_group_avg_tau_conf_interval(
+    input_forest$subsample_tau_avgs$above_median, 
+    input_forest$subsample_tau_avgs$below_median) %>% round(3)
+  
+  top_vs_bottom_ci <- get_group_avg_tau_conf_interval(
+    input_forest$subsample_tau_avgs$quartile_4,
+    input_forest$subsample_tau_avgs$quartile_1) %>% round(3)
+  
+  
+  
+  tribble(
+    ~"Group 1", ~"Group 2", ~"95\\% Confidence Interval of Difference",
+    "Quartile 4", "Bottom 3 Quartiles", clean_diff(highest_quartile_vs_rest_ci),
+    "Top 2 Quartiles (3 \\& 4)", "Bottom 2 Quartiles (1 \\& 2)", clean_diff(above_median_vs_below_ci),
+    "Quartile 4", "Quartile 1", clean_diff(top_vs_bottom_ci)
+  )
+}
+
+
+
+make_calibration_text <- function(calibrationtest){
+  paste0("We test the calibration of the forest, and estimate a 'mean forest prediction' (MFP) coefficient of ",
+         calibrationtest %>% filter(term %in% 'mean.forest.prediction') %>% pull(estimate) %>% round(3),
+         " and a 'differential forest prediction' (DFP) coefficient of ",
+         calibrationtest %>% filter(term %in% 'differential.forest.prediction') %>% pull(estimate) %>% round(3),
+         ", with a corresponding DFP p-value of ",
+         calibrationtest %>% filter(term %in% 'differential.forest.prediction') %>% pull(p.value) %>% round(3), ".")
+}
+
+calibration_footnote <- c("A coefficient of 1 for MFP suggests the mean forest prediction is correct, and a DFP coefficient of 1 'additionally suggests that the forest has captured heterogeneity in the underlying signal.' The p-value from the DFP estimate 'acts as an omnibus test for the presence of heterogeneity: If the coefficient is significantly greater than 0, then we can reject the null of no heterogeneity'.")
+
+
+
+source(file = 'calibration_plots.R')
+
+
+process_forests <- function(forests){
+  
+  for (outcome_label in names(forests)){
+    #forests[[outcome_label]]$tau_rank_plot <- forests[[outcome_label]] %>% make_tau_rank_order_plot(outcome_label)
+    forests[[outcome_label]]$quartile_heterogeneity_table <- forests[[outcome_label]]$augmented_df %>%
+      make_quartile_baseline_table(forest = forests[[outcome_label]])
+    #forests[[outcome_label]]$subsample_ate_table <- forests[[outcome_label]] %>% make_ate_summary_table()
+    #forests[[outcome_label]]$subsample_difference_table <- forests[[outcome_label]] %>% make_subsample_difference_table()
+    forests[[outcome_label]]$calibration_plot <- forests[[outcome_label]] %>% make_calibration_plot(outcome_and_label_list[[outcome_label]])
+  }
+  
+  return(forests)
+}
+
+
+print_forests <- function(forest_list){
+  for (i in 1:length(forest_list)){
+    
+    cat("## Outcome: ", names(forest_list)[i])
+    
+    cat('\n')  
+    
+    # forest_list[[i]]$tau_rank_plot %>% print()
+    # cat('\n')  
+
+    cat('The above plot shows the individual predicted treatment effects (PTEs) in rank-order from smallest to largest. The quartiles are labeled in the above plot, with Quartile 4 being the predicted "largest benefiters", and Quartile 1 being those expected to see the smallest treatment effects.\n')
+    
+    cat("PTEs are also denoted $\\hat{\\tau}^{(-i)}(X_i)$, or the estimate of individual $i$'s $\\hat{\\tau}$ calculated from our fitted forest. The superscript $(-i)$ denotes cross-fitting, eg 'that the observation is computed by leaving observation *i* out'.\n")
+    
+    cat("We also can calculate the average treatment effect (ATE) $\\hat{\\tau}$ from our fitted forest (done using the double robust method presented by Athey et. al. We present these ATEs below, including the ATEs calculated for those students identified in our PTE quartiles. ")
+    
+    
+    overall_effect <- forest_list[[i]]$group_tau_avgs['overall'] %>% round(3)
+    #overall_effect_se <- forest_list[[i]]$group_tau_avgs['overall.std.err'] %>% round(3)
+    cat("Our causal forest estimates an overall average treatment effect of ",
+        overall_effect, "\n") #, paste0("(", overall_effect_se,")."))
+    
+    cat("^[",  forest_list[[i]]$calibration_test %>% make_calibration_text(),  calibration_footnote,"] ")
+    cat('\n')
+    
+    
+    forest_list[[i]]$calibration_plot %>% print()
+    cat("\n")    
+    # 
+    # forest_list[[i]]$subsample_ate_table %>% 
+    #   kable(booktabs=T, escape=F, digits=3,
+    #         caption = paste0("Average Treatment Effects (overall and for subsamples) for ", names(forest_list)[i])) %>%
+    #   kable_styling(latex_options = c('striped', 'HOLD_position')) %>% print()
+    # 
+    # 
+    # 
+    # forest_list[[i]]$subsample_difference_table %>% 
+    #   kable(booktabs=T, escape=F, digits=3,
+    #         caption = paste0("Differences between subsample average treatment effects: ", names(forest_list)[i])) %>%
+    #   kable_styling(latex_options = c('striped', 'HOLD_position')) %>% print()
+    
+    
+    
+    
+    cat('\n')
+    # cat("\\begin{verbatim}")
+    # forest_list[[i]]$tuning_output %>% print() %>%  cat("\n")
+    # cat("\\end{verbatim}")
+    
+    #forest_list[[i]] %>%  make_group_diff_sentence %>% cat()
+
+    cat('\n')
+
+    forest_list[[i]]$quartile_heterogeneity_table %>%
+      kable(booktabs=T, escape=F, digits=3,
+            caption = paste0("Summary table by Quartile of Predicted Treatment Effects on ", names(forest_list)[i])) %>%
+      kable_styling(latex_options = c(#'striped',
+                                      'scale_down', 'HOLD_position')) %>% print()
+
+
+
+    cat('\\newpage')
+    cat('\n')
+  }
+}
+
+
+
+
+
+
+#final_forests_imputed <- readRDS(file = 'final_forests_imputed.rds') %>% process_forests()
+# if (use_clusters == T){
+#   final_forests_missingness <- readRDS(file = 'final_forests_missingness.rds')
+# }
+# if (use_clusters == F){
+#   if (no_dupes == T){
+final_forests_missingness <- readRDS(file = 'final_x_forests_missingness_no_cluster_no_dupes.rds')
+#   }
+#   else {
+#       final_forests_missingness <- readRDS(file = 'final_forests_missingness_no_cluster.rds')
+# 
+#   }
+#   
+# }
+
+#source(file = 'heatmap_plots.R')
+processed_forests <- final_forests_missingness %>% process_forests
+
+
+```
+
+This document presents the current `GRF` (Generalized Random Forests) analysis for treatment heterogeneity. We present results for the following outcomes:
+
+* Math Test Scores
+* Math Class Failures
+* Math GPA
+* Reading Test Scores
+* Non-math GPA
+* Graduated on-time
+* Ever graduated
+* Participation in Saga tutoring in year 2
+* 11th Grade Math GPA
+
+We use the most recent release of the `GRF` package by Tibshirani, Athey, et. al. We try to follow the example of Jon Davis and Sara Heller wherever possible, but in the interceding years there has been some updates in the underlying package, so there are some differences. Some implementation details: 
+
+* We use a training sample split (`sample.fraction`) of 0.50 when building each tree in each forest
+    + The package notes "when variance estimates are requested, `sample.fraction` cannot be greater than 0.5"
+* For each outcome of interest, we grow 100,000 trees to make each causal forest
+* Following Davis + Heller, we "adjust for differences in treatment probabilities [by] using inverse probability weights throughout the procedure" (following their calculation)
+* Jon Davis + Sara Heller dealt with missingness in covariates by imputing block means and including missingness dummies
+    + Since then, the underlying code has been updated with its own methods to deal with missingness (treating `NA`s as their own category during eah split)
+
+* ~~The package now supports 'clustering', so we cluster observations at the individual level to account for multiple observations of students randomized multiple times in study 2 (ensuring the same student can't be in both test/train splits when fitting each individual tree)~~
+    + We now exclude all students with duplicate observations.
+
+We use all covariates from our main analyses (except for randomization block). These include gender, age, learning disability, free lunch recipient, race, baseline grade level, GPA, baseline test performance (and within-baseline-school math test decile), days absent from school, disciplinary incidents, including suspensions, and arrests.
+
+\newpage
+
+<!-- ## Section 1: with imputing block means for missing covariates -->
+<!-- ```{r, results='asis', include=T, echo=F, fig.height=2} -->
+<!-- final_forests_imputed %>% print_forests() -->
+
+<!-- ``` -->
+
+<!-- \newpage -->
+
+<!-- ## Section 2: default program missingness handling -->
+
+```{r, results='asis', include=T, echo=F, fig.height=3.2, warning=F}
+processed_forests %>% print_forests()
+
+```
+
+<!-- # Decile Heatmaps -->
+
+```{r, results='asis', include=T, echo=F, fig.height=4.4, fig.width=7.5,  warning=F}
+# for (comparison in all_pte_quantile_plots){
+#   
+#   for (plot in comparison){
+#     cat('\n')
+#     print(plot)
+#     cat('\n')
+#   }
+#       
+#  
+#     cat('\\newpage')
+# }
+```

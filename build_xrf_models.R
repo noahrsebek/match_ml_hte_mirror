@@ -12,12 +12,12 @@ library('ggplot2')
 
 
 default_sample_fraction <- 0.5
-default_n_trees <- 5000
+default_n_trees <- 10000
 to_cluster <- F
 drop_duplicates <- T
 set.seed(392809)
 
-filename <- "grf/final_forests_missingness"
+filename <- "grf/final_x_forests_missingness"
 
 if (to_cluster==F){
   filename <- filename %>% paste0("_no_cluster")
@@ -122,9 +122,9 @@ add_pairwise_interactions <- function(data, list_of_controls){
 avg_effect <- function(Y,Y.hat,W,W.hat, weights,predictions,subset) {
   
   if (is.null(subset)) {
-    subset <- 1:length(forest$Y.hat)
+    subset <- 1:length(Y.hat)
   }
-  if (class(subset) == "logical" & length(subset) == length(forest$Y.hat)) {
+  if (class(subset) == "logical" & length(subset) == length(Y.hat)) {
     subset <- which(subset)
   }
   
@@ -218,13 +218,13 @@ make_single_X_RF <- function(dataset,
                                                "honesty.fraction", "honesty.prune.leaves",
                                                "alpha", "imbalance.penalty"),
                            min.node.size = 5,
-                           sample.weights = sample_weights_0#,
+                           sample.weights = sample_weights_0,
                            #clusters = cluster_ids,
                            # sample.fraction = default_sample_fraction,
-                           # num.trees = default_n_trees,
-                           # tune.num.trees = tune_num_trees,
-                           # tune.num.draws = tune_num_draws,
-                           # tune.num.reps = tune_num_reps
+                           num.trees = default_n_trees,
+                           tune.num.trees = tune_num_trees,
+                           tune.num.draws = tune_num_draws,
+                           tune.num.reps = tune_num_reps
                            )
   
   
@@ -233,13 +233,13 @@ make_single_X_RF <- function(dataset,
                                                "honesty.fraction", "honesty.prune.leaves",
                                                "alpha", "imbalance.penalty"),
                            min.node.size = 5,
-                           sample.weights = sample_weights_1#,
+                           sample.weights = sample_weights_1,
                            #clusters = cluster_ids,
                            # sample.fraction = default_sample_fraction,
-                           # num.trees = default_n_trees,
-                           # tune.num.trees = tune_num_trees,
-                           # tune.num.draws = tune_num_draws,
-                           # tune.num.reps = tune_num_reps
+                           num.trees = default_n_trees,
+                           tune.num.trees = tune_num_trees,
+                           tune.num.draws = tune_num_draws,
+                           tune.num.reps = tune_num_reps
                            )
   
   
@@ -256,13 +256,13 @@ make_single_X_RF <- function(dataset,
                                                    "honesty.fraction", "honesty.prune.leaves",
                                                    "alpha", "imbalance.penalty"),
                                min.node.size = 5,
-                               sample.weights = sample_weights_0#,
+                               sample.weights = sample_weights_0,
                                #clusters = cluster_ids,
                                # sample.fraction = default_sample_fraction,
-                               # num.trees = default_n_trees,
-                               # tune.num.trees = tune_num_trees,
-                               # tune.num.draws = tune_num_draws,
-                               # tune.num.reps = tune_num_reps
+                               num.trees = default_n_trees,
+                               tune.num.trees = tune_num_trees,
+                               tune.num.draws = tune_num_draws,
+                               tune.num.reps = tune_num_reps
                                )
   
   
@@ -271,13 +271,13 @@ make_single_X_RF <- function(dataset,
                                                    "honesty.fraction", "honesty.prune.leaves",
                                                    "alpha", "imbalance.penalty"),
                                min.node.size = 5,
-                               sample.weights = sample_weights_1#,
+                               sample.weights = sample_weights_1,
                                #clusters = cluster_ids,
                                # sample.fraction = default_sample_fraction,
-                               # num.trees = default_n_trees,
-                               # tune.num.trees = tune_num_trees,
-                               # tune.num.draws = tune_num_draws,
-                               # tune.num.reps = tune_num_reps
+                               num.trees = default_n_trees,
+                               tune.num.trees = tune_num_trees,
+                               tune.num.draws = tune_num_draws,
+                               tune.num.reps = tune_num_reps
                                )
   
   
@@ -289,13 +289,13 @@ make_single_X_RF <- function(dataset,
                                           "honesty.fraction", "honesty.prune.leaves",
                                           "alpha", "imbalance.penalty"),
                       min.node.size = 5,
-                      sample.weights = sample_weights#,
+                      sample.weights = sample_weights,
                       #clusters = cluster_ids,
                       # sample.fraction = default_sample_fraction,
-                      # num.trees = default_n_trees,
-                      # tune.num.trees = tune_num_trees,
-                      # tune.num.draws = tune_num_draws,
-                      # tune.num.reps = tune_num_reps
+                      num.trees = default_n_trees,
+                      tune.num.trees = tune_num_trees,
+                      tune.num.draws = tune_num_draws,
+                      tune.num.reps = tune_num_reps
                       ) 
   
   prop_scores <- predict(m_prop) %>% pull(predictions)
@@ -395,8 +395,9 @@ make_single_X_RF <- function(dataset,
                       'subsample_tau_avgs'=subsample_tau_avgs,
                       #'forest_object'=tau.forest,
                       'calibration_test'=forest_calibration,
-                      'n_observations' = n.obs,
-                      'tuning_output' = tau.forest$tuning.output)
+                      'n_observations' = n.obs#,
+                      #'tuning_output' = tau.forest$tuning.output
+                      )
   
   return(output_list)  
 }
@@ -415,7 +416,7 @@ master_pool <- master_pool %>%
 
 
 
-make_single_X_RF(master_pool, controls_sans_missingness_dummies, outcomes_of_interest[1], outcomes_of_interest_labels[1])
+#make_single_X_RF(master_pool, controls_sans_missingness_dummies, outcomes_of_interest[1], outcomes_of_interest_labels[1])
 
 
 
@@ -468,7 +469,7 @@ make_xrf_for_each_outcome <- function(input_dataset,
 
 
 start_time <- Sys.time()
-final_forests_xrf <- make_forest_for_each_outcome(master_pool,
+final_forests_xrf <- make_xrf_for_each_outcome(master_pool,
                                                   controls_sans_missingness_dummies,
                                                   outcomes_of_interest,
                                                   outcomes_of_interest_labels,
