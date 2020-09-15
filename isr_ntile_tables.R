@@ -92,6 +92,30 @@ make_isr_quartile_table <- function(outcome_list, isr_datafile, raw=F){
         select(Estimate, calibration_quantiles) %>% 
         tidyr::pivot_wider(values_from = Estimate, names_from = calibration_quantiles) %>% 
         mutate(Question = outcome_label) %>% relocate(Question)
+      
+      
+      
+      linear_term_model <- lm(paste0(outcome_of_interest, " ~ ",
+                                     "calibration_quantiles + dmatch:calibration_quantiles +",
+                                     paste(itt_vars, collapse='+')),
+                              data=isr_datafile %>% mutate(calibration_quantiles = as.numeric(calibration_quantiles)),
+                              weights = isr_weight)  %>%
+        lmtest::coeftest(vcov=sandwich::vcovHC(., type='HC1')) %>% 
+        broom::tidy() %>% filter(term %>% startsWith('calibration_quantiles:')) %>% 
+        select(-statistic) %>%
+        mutate(estimate = round(estimate, 3),
+               std.error = round(std.error, 3),
+               stars = case_when(
+                 p.value < 0.01 ~ '***',
+                 p.value < 0.05 ~ "**",
+                 p.value < 0.01 ~ "*",
+                 TRUE ~ ""),
+               Estimate = paste0(estimate, stars, " (", std.error,")")) %>%
+        select('Linear Quartile Tx Interaction Term' = Estimate)
+      
+      fitted_model_table_row <- fitted_model_table_row %>% bind_cols(linear_term_model)
+      
+      
     }
     
     if (raw==T){
@@ -110,8 +134,8 @@ make_isr_quartile_table <- function(outcome_list, isr_datafile, raw=F){
 
 
 
-make_isr_quartile_table(isr_outcome_list_2014, isr_2014_with_quantiles) %>% write_csv('mathgpa_wave1.csv')
-make_isr_quartile_table(isr_outcome_list_2015, isr_2015_with_quantiles) %>% write_csv('mathgpa_wave2.csv')
+make_isr_quartile_table(isr_outcome_list_2014, isr_2014_with_quantiles) %>% write_csv('mathgpa_wave1_w_linear_term.csv')
+make_isr_quartile_table(isr_outcome_list_2015, isr_2015_with_quantiles) %>% write_csv('mathgpa_wave2_w_linear_term.csv')
 
 
 
