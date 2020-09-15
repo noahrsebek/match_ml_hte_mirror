@@ -139,13 +139,12 @@ make_ate_summary_table <- function(input_forest){
   subsample_ATEs_mean_se <- input_forest$subsample_tau_avgs
   
   quartile_95_ci_col <- c()
-  quartile_se_col <- c()
   for (i in 4:1){
     current_quartile <- paste0('quartile_', i)
     current_ATE <- subsample_ATEs_mean_se[[current_quartile]]
     quartile_95_ci_col <- c(quartile_95_ci_col,
-                            clean_estimate_w_95_conf_intervals(current_ATE[1], current_ATE[2]))
-    quartile_se_col <- c(quartile_se_col, round(current_ATE[[2]], 3))
+                            current_ATE[1])
+    #quartile_se_col <- c(quartile_se_col, round(current_ATE[[2]], 3))
   }
   
   
@@ -153,16 +152,16 @@ make_ate_summary_table <- function(input_forest){
   
   # Quartile
   ate_95ci_table_pte_quartiles <- tibble('Sample'  = paste("Individual PTE Quartile", 4:1),
-                                         "Avg. Treatment Effect with 95\\% Conf. Intervals" = quartile_95_ci_col,
-                                         "Standard Error" = quartile_se_col)
+                                         "Avg. Treatment Effect with 95\\% Conf. Intervals" = quartile_95_ci_col#,
+                                         #"Standard Error" = quartile_se_col
+                                         )
   
   # Overall
   ate_95ci_table_overall <- tibble("Sample" = "Whole Sample",
-                                   "Avg. Treatment Effect with 95\\% Conf. Intervals" =
-                                     clean_estimate_w_95_conf_intervals(
-                                       input_forest$group_tau_avgs['overall.estimate'],
-                                       input_forest$group_tau_avgs['overall.std.err']),
-                                   "Standard Error" = round(input_forest$group_tau_avgs['overall.std.err'], 3))
+                                   "Avg. Treatment Effect with 95\\% Conf. Intervals" = input_forest$group_tau_avgs['overall']#,
+                                       #input_forest$group_tau_avgs['overall.std.err']),
+                                   #"Standard Error" = round(input_forest$group_tau_avgs['overall.std.err'], 3)
+                                   )
   
   # Other subgroups
   other_subgroups <- c("above_median", "below_median", "bottom_three_quartiles")
@@ -174,13 +173,12 @@ make_ate_summary_table <- function(input_forest){
   for (group in other_subgroups){
     current_ATE <- subsample_ATEs_mean_se[[group]]
     other_subgroup_95_ci_col <- c(other_subgroup_95_ci_col,
-                                  clean_estimate_w_95_conf_intervals(current_ATE[1], current_ATE[2]))
-    other_subgroup_se_col <- c(other_subgroup_se_col, round(current_ATE[[2]], 3))
+                                  current_ATE[1])
+    #other_subgroup_se_col <- c(other_subgroup_se_col, round(current_ATE[[2]], 3))
   }
   
   ate_95ci_table_subgroup <- tibble('Sample'  = other_subgroup_labels,
-                                    "Avg. Treatment Effect with 95\\% Conf. Intervals" = other_subgroup_95_ci_col,
-                                    "Standard Error" = other_subgroup_se_col)
+                                    "Avg. Treatment Effect with 95\\% Conf. Intervals" = other_subgroup_95_ci_col)
   
   
   
@@ -270,7 +268,7 @@ process_forests <- function(forests){
     #forests[[outcome_label]]$tau_rank_plot <- forests[[outcome_label]] %>% make_tau_rank_order_plot(outcome_label)
     forests[[outcome_label]]$quartile_heterogeneity_table <- forests[[outcome_label]]$augmented_df %>%
       make_quartile_baseline_table(forest = forests[[outcome_label]])
-    #forests[[outcome_label]]$subsample_ate_table <- forests[[outcome_label]] %>% make_ate_summary_table()
+    forests[[outcome_label]]$subsample_ate_table <- forests[[outcome_label]] %>% make_ate_summary_table()
     #forests[[outcome_label]]$subsample_difference_table <- forests[[outcome_label]] %>% make_subsample_difference_table()
     forests[[outcome_label]]$calibration_plot <- forests[[outcome_label]] %>% make_calibration_plot(outcome_and_label_list[[outcome_label]])
   }
@@ -308,10 +306,11 @@ print_forests <- function(forest_list){
     forest_list[[i]]$calibration_plot %>% print()
     cat("\n")    
     # 
-    # forest_list[[i]]$subsample_ate_table %>% 
-    #   kable(booktabs=T, escape=F, digits=3,
-    #         caption = paste0("Average Treatment Effects (overall and for subsamples) for ", names(forest_list)[i])) %>%
-    #   kable_styling(latex_options = c('striped', 'HOLD_position')) %>% print()
+    forest_list[[i]]$subsample_ate_table %>%
+      kable(booktabs=T, escape=F, digits=3,
+            caption = paste0("Average Treatment Effects (overall and for subsamples) for ", names(forest_list)[i])) %>%
+      kable_styling(latex_options = c(#'striped',
+      'HOLD_position')) %>% print()
     # 
     # 
     # 
