@@ -1,5 +1,5 @@
 ---
-title: "GRF for Saga/Match Treatment Heterogeneity"
+title: "X-Learner (GRF implementation) for Saga/Match Treatment Heterogeneity"
 author: ""
 #date: "May 29, 2020"
 output: pdf_document
@@ -370,7 +370,7 @@ processed_forests <- final_forests_missingness %>% process_forests
 
 ```
 
-This document presents the current `GRF` (Generalized Random Forests) analysis for treatment heterogeneity. We present results for the following outcomes:
+This document presents the current `GRF` (Generalized Random Forests) Implementation of X-learner for analysis of treatment heterogeneity. We present results for the following outcomes:
 
 * Math Test Scores
 * Math Class Failures
@@ -382,17 +382,7 @@ This document presents the current `GRF` (Generalized Random Forests) analysis f
 * Participation in Saga tutoring in year 2
 * 11th Grade Math GPA
 
-We use the most recent release of the `GRF` package by Tibshirani, Athey, et. al. We try to follow the example of Jon Davis and Sara Heller wherever possible, but in the interceding years there has been some updates in the underlying package, so there are some differences. Some implementation details: 
 
-* We use a training sample split (`sample.fraction`) of 0.50 when building each tree in each forest
-    + The package notes "when variance estimates are requested, `sample.fraction` cannot be greater than 0.5"
-* For each outcome of interest, we grow 100,000 trees to make each causal forest
-* Following Davis + Heller, we "adjust for differences in treatment probabilities [by] using inverse probability weights throughout the procedure" (following their calculation)
-* Jon Davis + Sara Heller dealt with missingness in covariates by imputing block means and including missingness dummies
-    + Since then, the underlying code has been updated with its own methods to deal with missingness (treating `NA`s as their own category during eah split)
-
-* ~~The package now supports 'clustering', so we cluster observations at the individual level to account for multiple observations of students randomized multiple times in study 2 (ensuring the same student can't be in both test/train splits when fitting each individual tree)~~
-    + We now exclude all students with duplicate observations.
 
 We use all covariates from our main analyses (except for randomization block). These include gender, age, learning disability, free lunch recipient, race, baseline grade level, GPA, baseline test performance (and within-baseline-school math test decile), days absent from school, disciplinary incidents, including suspensions, and arrests.
 
