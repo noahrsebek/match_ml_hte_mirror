@@ -30,170 +30,13 @@ if (drop_duplicates==T){
 
 # load data ----
 setwd("/export/projects/migrated-BAM/Match_AnalysisFiles_May2016/Results/2020")
-source('grf/grf_globals.R')
 master_pool <- load_master_dataset()
-
+setwd('grf')
+source('grf_globals.R')
 
 
 # helper functions ----
-
-
-makeDummies <- function(dataframe,
-                        flipped=F){
-  dataframe$d_positive <- ifelse(dataframe$grf_tau_hat > 0, 1, 0)
-  dataframe$d_negative <- ifelse(dataframe$grf_tau_hat <= 0, 1, 0)
-  
-  dataframe$d_positive <- ifelse(dataframe$grf_tau_hat > 0, 1, 0)
-  dataframe$d_negative <- ifelse(dataframe$grf_tau_hat <= 0, 1, 0)
-  
-  #qcut function taken from Hadley Wickham answer on stackoverflow
-  qcut <- function(x, n) {
-    cut(x, quantile(x, seq(0, 1, length = n + 1)), labels = seq_len(n),
-        include.lowest = TRUE)
-  }
-  
-  dataframe$tau_quartile <- qcut(dataframe$grf_tau_hat, 4) %>% as.numeric()
-  
-  if (flipped ==T){
-    dataframe$tau_quartile <- abs(4 - dataframe$tau_quartile) + 1
-  }
-  
-  dummy_df <- data.frame(dummies::dummy(dataframe$tau_quartile, sep="_"))
-  
-  #note: dummy function has issues with column names; overwrite them manually here
-  colnames(dummy_df) <- c("d_quart1", "d_quart2", "d_quart3", "d_quart4")
-  dataframe <- cbind(dataframe, dummy_df)
-  return(dataframe)
-  
-}
-
-
-
-scalar1 <- function(x) {x / sqrt(sum(x^2, na.rm=T))}
-
-add_pairwise_interactions <- function(data, list_of_controls){
-  
-  temp_df <- data
-  
-  for (control_1 in list_of_controls){
-    for (control_2 in list_of_controls){
-      # if control1==control2, pass
-      if (control_1 == control_2) next
-      temp_df[,paste0(control_1, "_x_", control_2)] <- scalar1(temp_df[,control_1]) * scalar1(temp_df[,control_2])
-      
-    }
-  }
-  
-  return(temp_df)
-  
-}
-
-
-get_group_avg_tau_conf_interval <- function(group1, group2){
-  group1[["estimate"]] - group2[["estimate"]] +
-    c(-1, 1) * qnorm(0.975) * sqrt(group1[["std.err"]]^2 + group2[["std.err"]]^2)
-}
-
-clean_estimate_w_95_conf_intervals <- function(est, se){
-  paste0(round( est , 3), " +/- ", round( qnorm(0.975) * se , 3))
-}
-
-
-make_quartile_baseline_table <- function(input_augmented_df,
-                                         subsample_tau_avgs,
-                                         baselines = table_baselines,
-                                         baselines_labels = table_baselines_labels){
-  quartile_baseline_table <- list()
-  
-  tau_avgs <- subsample_tau_avgs
-  tau_avg_df <- tribble(~tau_quartile, ~avg,
-                        1, tau_avgs$quartile_1[['estimate']],
-                        2, tau_avgs$quartile_2[['estimate']],
-                        3, tau_avgs$quartile_3[['estimate']],
-                        4, tau_avgs$quartile_4[['estimate']])
-  
-  for (quartile in 1:4){
-    
-    # get N in quartile and get avg tau hat 
-    n_quart <- input_augmented_df %>% filter(tau_quartile %in% quartile) %>% nrow()
-    avg_tau_hat <- input_augmented_df %>% filter(tau_quartile %in% quartile) %>% pull(grf_tau_hat) %>% mean(na.rm=T)
-    #avg_tau_hat <- tau_avg_df %>% filter(tau_quartile %in% quartile) %>% pull(avg)
-    
-    # make column name
-    col_name <- paste0("$\\hat{\\tau}$ Quartile ", quartile)
-    temp_quart_column <- c(avg_tau_hat, n_quart)
-    
-    for (bl_var in baselines){
-      mean_val <- input_augmented_df %>% filter(tau_quartile %in% quartile) %>% pull(bl_var) %>% mean(na.rm=T)
-      temp_quart_column <- c(temp_quart_column, mean_val)
-    }
-    quartile_baseline_table[[col_name]] <- temp_quart_column
-  }
-  
-  quartile_baseline_table <- quartile_baseline_table %>% as_tibble()
-  quartile_baseline_table <- bind_cols(
-    tibble(Baseline = c("\\textit{Mean} $\\hat{\\tau}$",
-                        "\\textit{N}",
-                        baselines_labels)),
-    quartile_baseline_table)
-  
-  return(quartile_baseline_table)
-}
-
-
-
-make_ate_summary_table <- function(subsample_tau_avgs,
-                                   group_tau_avgs){
-  
-  subsample_ATEs_mean_se <- subsample_tau_avgs
-  
-  quartile_95_ci_col <- c()
-  quartile_se_col <- c()
-  for (i in 4:1){
-    current_quartile <- paste0('quartile_', i)
-    current_ATE <- subsample_ATEs_mean_se[[current_quartile]]
-    quartile_95_ci_col <- c(quartile_95_ci_col,
-                            current_ATE[1])
-    quartile_se_col <- c(quartile_se_col, current_ATE[[2]])
-  }
-  
-  
-  
-  
-  # Quartile
-  ate_95ci_table_pte_quartiles <- tibble('Sample'  = paste("Individual PTE Quartile", 4:1),
-                                         "Avg. Treatment Effect" = quartile_95_ci_col,
-                                         "Standard Error" = quartile_se_col)
-  
-  # Overall
-  ate_95ci_table_overall <- tibble("Sample" = "Whole Sample",
-                                   "Avg. Treatment Effect" = group_tau_avgs['overall.estimate'],
-                                   "Standard Error" = group_tau_avgs['overall.std.err'])
-  
-  # Other subgroups
-  other_subgroups <- c("above_median", "below_median", "bottom_three_quartiles")
-  other_subgroup_labels <- c("Top 2 PTE Quartiles", "Bottom 2 PTE Quartiles", "Bottom 3 PTE Quartiles")
-  
-  other_subgroup_95_ci_col <- c()
-  other_subgroup_se_col <- c()
-  
-  for (group in other_subgroups){
-    current_ATE <- subsample_ATEs_mean_se[[group]]
-    other_subgroup_95_ci_col <- c(other_subgroup_95_ci_col,
-                                  current_ATE[1])
-    other_subgroup_se_col <- c(other_subgroup_se_col, current_ATE[2])
-  }
-  
-  ate_95ci_table_subgroup <- tibble('Sample'  = other_subgroup_labels,
-                                    "Avg. Treatment Effect" = other_subgroup_95_ci_col,
-                                    "Standard Error" = other_subgroup_se_col)
-  
-  
-  
-  bind_rows(ate_95ci_table_overall,
-            ate_95ci_table_pte_quartiles,
-            ate_95ci_table_subgroup)
-}
+source(file = 'helper_functions.R')
 
 
 make_single_causal_forest <- function(dataset,
@@ -207,7 +50,8 @@ make_single_causal_forest <- function(dataset,
                                       tune_num_reps = 50,
                                       tune_num_draws = 1000,
                                       tune_num_trees = 200,
-                                      splitsample_frac = splitsample_fraction
+                                      #splitsample_frac = splitsample_fraction
+                                      splitsample_df
                                       ){
   
   
@@ -222,7 +66,8 @@ make_single_causal_forest <- function(dataset,
   
   
   # keep observations complete on outcome and that has an inv prob weight
-  working_df <- dataset %>% drop_na(outcome, inv_prob_weight) %>% sample_frac(splitsample_frac)
+  working_df <- dataset %>% drop_na(outcome) #%>%  mutate(row_id = row_number())
+  splitsample_df <- splitsample_df %>% drop_na(outcome)
   
   n.obs <- nrow(working_df)
   
@@ -231,11 +76,15 @@ make_single_causal_forest <- function(dataset,
   Y <- working_df %>% pull(tidyselect::all_of(outcome))
   sample_weights <- working_df %>% pull(inv_prob_weight)
   
-  cluster_ids <- working_df %>% pull(sid) # we have pooled the data, and with duplicates, we should cluster on sid
+  X_splitsample <- splitsample_df[,controls]
+
   
+  cluster_ids <- working_df %>% pull(sid) # we'll use these if we have duplicates n the data
+  cluster_ids_splitsample <- splitsample_df %>% pull(sid)
   
   if (add_all_interactions==T){
     X <- X %>% add_pairwise_interactions(controls)
+    X_splitsample <- X_splitsample %>% add_pairwise_interactions(controls)
   }
   
   if (cluster==T){
@@ -268,12 +117,25 @@ make_single_causal_forest <- function(dataset,
   }
 
   
-  tau.hat.oob <- predict(tau.forest, estimate.variance = T)
+  tau.hat.oob <- predict(tau.forest,
+                         estimate.variance = T)
+  
+  tau.hat.oob.splitsample <- predict(tau.forest,
+                         newdata = X_splitsample,
+                         estimate.variance = T)
+  
   predictions_oob <- tau.hat.oob$predictions
   variance <- tau.hat.oob$variance.estimates
   standard_dev <- sqrt(variance)
   
+  predictions_oob_splitsample <- tau.hat.oob.splitsample$predictions
+  variance_splitsample <- tau.hat.oob.splitsample$variance.estimates
+  standard_dev_splitsample <- sqrt(variance_splitsample)
+    
+  
+  
   # get forest-wide avg tau's/tx effects (and the standard errpr)
+  # NOTE:this is *not* with the split sample
   avg_tx_effect_overall <- average_treatment_effect(tau.forest, target.sample = 'all')
   avg_tx_effect_treated <- average_treatment_effect(tau.forest, target.sample = 'treated')
   avg_tx_effect_control <- average_treatment_effect(tau.forest, target.sample = 'control')
@@ -289,10 +151,16 @@ make_single_causal_forest <- function(dataset,
   
   # - the predictions + variance in a df with the sids
   if (flip_outcome == F) {
+    tau_df_splitsample <- tibble(sid = cluster_ids_splitsample,
+                     grf_tau_hat = predictions_oob_splitsample,
+                     grf_variance = variance_splitsample,
+                     grf_sd = standard_dev_splitsample) %>% 
+      makeDummies()
+    
     tau_df <- tibble(sid = cluster_ids,
-                     grf_tau_hat = predictions_oob,
-                     grf_variance = variance,
-                     grf_sd = standard_dev) %>% 
+                                 grf_tau_hat = predictions_oob,
+                                 grf_variance = variance,
+                                 grf_sd = standard_dev) %>% 
       makeDummies()
   }
 
@@ -301,6 +169,12 @@ make_single_causal_forest <- function(dataset,
                      grf_tau_hat = predictions_oob,
                      grf_variance = variance,
                      grf_sd = standard_dev) %>% 
+      makeDummies(flipped = T)
+    
+    tau_df_splitsample <- tibble(sid = cluster_ids_splitsample,
+                                 grf_tau_hat = predictions_oob_splitsample,
+                                 grf_variance = variance_splitsample,
+                                 grf_sd = standard_dev_splitsample) %>% 
       makeDummies(flipped = T)
   }  
   # now that we have the quartile dummies, we can get quartile level effects
@@ -330,10 +204,8 @@ make_single_causal_forest <- function(dataset,
                              'quartile_4' = ate.highest_25)
   
   # - 'augmented' master df (the above df merged with the full master dataset)
-  augmented_df <- working_df %>% left_join(tau_df, by='sid')
+  augmented_df <- working_df %>% left_join(tau_df_splitsample, by='sid')
   
-  # - quartile heterogeneity table
-  # - plot: prediction vs rank plot
   
   
   # quartile baseline table
@@ -343,8 +215,9 @@ make_single_causal_forest <- function(dataset,
   subsample_ate_table <- subsample_tau_avgs %>% make_ate_summary_table(group_tau_avgs)
   
   # subsample difference table
+  subsample_difference_table <- subsample_tau_avgs %>% make_subsample_difference_table()
   
-  # 
+  # calibration test (Jon D) output (no plot)
   
   
   output_list <- list(
@@ -352,32 +225,58 @@ make_single_causal_forest <- function(dataset,
     # 'augmented_df' = augmented_df,
     #'quartile_heterogeneity_table' = quartile_heterogeneity_table,
     #'tau_rank_plot'=tau_rank_plot,
-    'group_tau_avgs'=group_tau_avgs,
-    'subsample_tau_avgs'=subsample_tau_avgs,
+    #'group_tau_avgs'=group_tau_avgs,
+    #'subsample_tau_avgs'=subsample_tau_avgs,
     'subsample_ate_table' = subsample_ate_table,
+    'subsample_difference_table' = subsample_difference_table,
     #'forest_object'=tau.forest,
     'calibration_test'=forest_calibration,
-    'n_observations' = n.obs,
-    'tuning_output' = tau.forest$tuning.output,
+    #'n_observations' = n.obs,
+    #'tuning_output' = tau.forest$tuning.output,
     'quartile_heterogeneity_table' = quartile_heterogeneity_table)
   
   return(output_list)  
 }
 
-# OVERALL DATA WORK ----
-# - adding inv probability weights
-# - rand block mean imputation
-# - 
-block_treatment_probability_df <- master_pool %>% group_by(blocknum, study) %>% summarize(p_block = mean(dmatch)) %>% ungroup()
 
-singleton_blocks <- master_pool %>% group_by(blocknum, study) %>% filter(n()==1) %>% ungroup() %>% pull(blocknum)
 
-master_pool <- master_pool %>%
-  left_join(block_treatment_probability_df, by=c('study', 'blocknum')) %>% 
-  mutate(inv_prob_weight = dmatch/p_block + (1-dmatch)/(1-p_block)) %>% 
-  filter(! blocknum %in% singleton_blocks)
+make_causal_forest_for_each_outcome <- function(input_dataset,
+                                                splitsample_df,
+                                                input_controls,
+                                                outcomes,
+                                                outcome_labels,
+                                                flipped_outcomes=c()){
+  final_forest_list <- list()
+  
+  for (i in 1:length(outcomes)){
+    
+    current_outcome <- outcomes[i]
+    current_outcome_label <- outcome_labels[i]
+    cat("Running: ", current_outcome)
+    if (current_outcome %in% flipped_outcomes){
+      single_forest_output <- make_single_causal_forest(dataset = input_dataset,
+                                                        controls = input_controls,
+                                                        outcome = current_outcome,
+                                                        outcome_label = current_outcome_label,
+                                                        flip_outcome = T,
+                                                        splitsample_df = splitsample_df)
+    } else {
+      single_forest_output <- make_single_causal_forest(dataset = input_dataset,
+                                                        controls = input_controls,
+                                                        outcome = current_outcome,
+                                                        outcome_label = current_outcome_label,
+                                                        splitsample_df = splitsample_df)
+    }
+    
+    
+    
+    final_forest_list[[current_outcome_label]] <- single_forest_output
+    
+  }
+  
+  return(final_forest_list)
+}
 
-# W_i = D/p_block + (1-D)/(1-p_block)
 
 
 
