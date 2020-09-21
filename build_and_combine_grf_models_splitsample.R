@@ -28,17 +28,17 @@ if (drop_duplicates==T){
 
 
 
+# helper functions ----
+source(file = 'helper_functions.R')
+
+
 # load data ----
 setwd("/export/projects/migrated-BAM/Match_AnalysisFiles_May2016/Results/2020")
 master_pool <- load_master_dataset()
 setwd('grf')
 source('grf_globals.R')
 
-
-# helper functions ----
-source(file = 'helper_functions.R')
-
-
+# main ML functions
 make_single_causal_forest <- function(dataset,
                                       controls,
                                       outcome,
@@ -88,6 +88,12 @@ make_single_causal_forest <- function(dataset,
   }
   
   if (cluster==T){
+    # fit Y forest
+    
+    
+    # fit W forest
+    
+    # fit tau forest
     tau.forest <- causal_forest(X, Y, W,
                                 tune.parameters = c("sample.fraction", "mtry",
                                                     "honesty.fraction", "honesty.prune.leaves",
@@ -102,6 +108,10 @@ make_single_causal_forest <- function(dataset,
                                 tune.num.reps = tune_num_reps)
   }
   if (cluster==F){
+    # fit Y forest
+    
+    
+    # fit W forest
     tau.forest <- causal_forest(X, Y, W,
                                 tune.parameters = c("sample.fraction", "mtry",
                                                     "honesty.fraction", "honesty.prune.leaves",
@@ -204,7 +214,8 @@ make_single_causal_forest <- function(dataset,
                              'quartile_4' = ate.highest_25)
   
   # - 'augmented' master df (the above df merged with the full master dataset)
-  augmented_df <- working_df %>% left_join(tau_df_splitsample, by='sid')
+  augmented_df <- working_df %>% left_join(tau_df,#_splitsample,
+                                           by='sid')
   
   
   
