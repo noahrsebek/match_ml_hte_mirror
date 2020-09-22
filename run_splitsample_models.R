@@ -11,7 +11,7 @@ library('furrr')
 library('purrr')
 
 
-n_splitsample_iterations <- 20
+n_splitsample_iterations <- 250
 splitsample_fraction <- 0.5
 default_n_trees <- 5000
 to_cluster <- F
@@ -36,7 +36,7 @@ source(file = 'helper_functions.R')
 source(file = 'grf_globals.R')
 master_pool <- load_master_dataset()
 
-# main ML functions
+# main ML functions ----
 make_single_causal_forest <- function(dataset,
                                       controls,
                                       outcome,
@@ -52,8 +52,7 @@ make_single_causal_forest <- function(dataset,
                                       splitsample_df,
                                       tuned_parameters = c("sample.fraction", "mtry",
                                                            "honesty.fraction", "honesty.prune.leaves",
-                                                           "alpha", "imbalance.penalty") 
-){
+                                                           "alpha", "imbalance.penalty")){
   
   
   if (remove_duplicates==T){
@@ -264,8 +263,8 @@ make_single_causal_forest <- function(dataset,
                              'quartile_4' = ate.highest_25)
   
   # - 'augmented' master df (the above df merged with the full master dataset)
-  augmented_df <- working_df %>% left_join(tau_df,#_splitsample,
-                                           by='sid')
+  #augmented_df <- working_df %>% left_join(tau_df, by='sid')
+  augmented_df <- splitsample_df %>% left_join(tau_df_splitsample, by='sid')
   
   
   
@@ -422,7 +421,7 @@ end_time <- Sys.time()
 
 end_time - start_time
 
-
+all_splitsample_models %>% saveRDS('all_splitsample_models.Rds')
 
 
 # combine models ----
