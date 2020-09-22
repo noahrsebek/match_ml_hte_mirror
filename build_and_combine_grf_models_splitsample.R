@@ -51,7 +51,10 @@ make_single_causal_forest <- function(dataset,
                                       tune_num_draws = 1000,
                                       tune_num_trees = 200,
                                       #splitsample_frac = splitsample_fraction
-                                      splitsample_df
+                                      splitsample_df,
+                                      tuned_parameters = c("sample.fraction", "mtry",
+                                                           "honesty.fraction", "honesty.prune.leaves",
+                                                           "alpha", "imbalance.penalty") 
                                       ){
   
   
@@ -66,8 +69,8 @@ make_single_causal_forest <- function(dataset,
   
   
   # keep observations complete on outcome and that has an inv prob weight
-  working_df <- dataset %>% drop_na(outcome) #%>%  mutate(row_id = row_number())
-  splitsample_df <- splitsample_df %>% drop_na(outcome)
+  working_df <- dataset %>% drop_na(all_of(outcome)) #%>%  mutate(row_id = row_number())
+  splitsample_df <- splitsample_df %>% drop_na(all_of(outcome))
   
   n.obs <- nrow(working_df)
   
@@ -77,7 +80,9 @@ make_single_causal_forest <- function(dataset,
   sample_weights <- working_df %>% pull(inv_prob_weight)
   
   X_splitsample <- splitsample_df[,controls]
-
+  Y_splitsample <- splitsample_df %>% pull(tidyselect::all_of(outcome))
+  W_splitsample <- splitsample_df %>% pull(dmatch)
+  sample_weights_splitsample <- splitsample_df %>% pull(inv_prob_weight)
   
   cluster_ids <- working_df %>% pull(sid) # we'll use these if we have duplicates n the data
   cluster_ids_splitsample <- splitsample_df %>% pull(sid)
@@ -108,22 +113,32 @@ make_single_causal_forest <- function(dataset,
                                 tune.num.reps = tune_num_reps)
   }
   if (cluster==F){
-    # fit Y forest
-    
     
     # fit W forest
+    forest.W <- regression_forest(X, W, tune.parameters = tuned_parameters, min.node.size = 5)
+    W.hat_splitsample <- predict(forest.W, newdata=X_splitsample)$predictions
+    W.hat <- predict(forest.W)$predictions
+    
+    
+    # fit Y forest
+    forest.Y <- regression_forest(X, Y, tune.parameters = tuned_parameters, min.node.size = 5)
+    Y.hat_splitsample <- predict(forest.Y, newdata=X_splitsample)$predictions
+    Y.hat <- predict(forest.Y)$predictions
+    
+    
     tau.forest <- causal_forest(X, Y, W,
-                                tune.parameters = c("sample.fraction", "mtry",
-                                                    "honesty.fraction", "honesty.prune.leaves",
-                                                    "alpha", "imbalance.penalty"),
+                                tune.parameters = tuned_parameters,
                                 min.node.size = 5,
                                 sample.weights = sample_weights,
+                                W.hat = W.hat,
+                                Y.hat = Y.hat,
                                 #clusters = cluster_ids,
                                 #sample.fraction = default_sample_fraction,
                                 num.trees = default_n_trees,
                                 tune.num.trees = tune_num_trees,
                                 tune.num.draws = tune_num_draws,
-                                tune.num.reps = tune_num_reps)
+                                tune.num.reps = tune_num_reps
+                                )
   }
 
   
@@ -146,18 +161,17 @@ make_single_causal_forest <- function(dataset,
   
   # get forest-wide avg tau's/tx effects (and the standard errpr)
   # NOTE:this is *not* with the split sample
-  avg_tx_effect_overall <- average_treatment_effect(tau.forest, target.sample = 'all')
-  avg_tx_effect_treated <- average_treatment_effect(tau.forest, target.sample = 'treated')
-  avg_tx_effect_control <- average_treatment_effect(tau.forest, target.sample = 'control')
+  #avg_tx_effect_overall <- average_treatment_effect(tau.forest, target.sample = 'all')
+  avg_tx_effect_overall <- avg_effect(Y = Y_splitsample, Y.hat = Y.hat_splitsample, W = W_splitsample, W.hat = W.hat_splitsample,
+             weights = sample_weights_splitsample, predictions = predictions_oob_splitsample,
+             subset = NULL)
   
   # test calibration of forest
   forest_calibration <- test_calibration(tau.forest) %>% broom::tidy()
   
   # output should be a list with
   # - avg causal effects
-  group_tau_avgs <- c('overall'=avg_tx_effect_overall,
-                      'treated'=avg_tx_effect_treated,
-                      'control'=avg_tx_effect_control)
+  group_tau_avgs <- c('overall'=avg_tx_effect_overall)
   
   # - the predictions + variance in a df with the sids
   if (flip_outcome == F) {
@@ -188,21 +202,53 @@ make_single_causal_forest <- function(dataset,
       makeDummies(flipped = T)
   }  
   # now that we have the quartile dummies, we can get quartile level effects
-  ate.highest_25 <- average_treatment_effect(tau.forest,
-                                             subset = tau_df$tau_quartile == 4)
-  ate.bottom_25 <- average_treatment_effect(tau.forest,
-                                            subset = tau_df$tau_quartile == 1)
-  ate.quartile_2 <- average_treatment_effect(tau.forest,
-                                             subset = tau_df$tau_quartile == 2)
-  ate.quartile_3 <- average_treatment_effect(tau.forest,
-                                             subset = tau_df$tau_quartile == 3)
+  # ate.highest_25 <- average_treatment_effect(tau.forest,
+  #                                            subset = tau_df$tau_quartile == 4)
+  # ate.bottom_25 <- average_treatment_effect(tau.forest,
+  #                                           subset = tau_df$tau_quartile == 1)
+  # ate.quartile_2 <- average_treatment_effect(tau.forest,
+  #                                            subset = tau_df$tau_quartile == 2)
+  # ate.quartile_3 <- average_treatment_effect(tau.forest,
+  #                                            subset = tau_df$tau_quartile == 3)
+  # 
+  # ate.bottom_75 <- average_treatment_effect(tau.forest,
+  #                                           subset = tau_df$tau_quartile != 4)
+  # ate.high <- average_treatment_effect(tau.forest,
+  #                                      subset = tau_df$tau_quartile %in% c(3,4))
+  # ate.low <- average_treatment_effect(tau.forest,
+  #                                     subset = tau_df$tau_quartile %in% c(1,2))
   
-  ate.bottom_75 <- average_treatment_effect(tau.forest,
-                                            subset = tau_df$tau_quartile != 4)
-  ate.high <- average_treatment_effect(tau.forest,
-                                       subset = tau_df$tau_quartile %in% c(3,4))
-  ate.low <- average_treatment_effect(tau.forest,
-                                      subset = tau_df$tau_quartile %in% c(1,2))
+  
+  ate.highest_25 <- avg_effect(Y = Y_splitsample, Y.hat = Y.hat_splitsample, W = W_splitsample, W.hat = W.hat_splitsample,
+                               weights = sample_weights_splitsample, predictions = predictions_oob_splitsample,
+                               subset = tau_df_splitsample$tau_quartile == 4)
+  
+  ate.bottom_25 <- avg_effect(Y = Y_splitsample, Y.hat = Y.hat_splitsample, W = W_splitsample, W.hat = W.hat_splitsample,
+                              weights = sample_weights_splitsample, predictions = predictions_oob_splitsample,
+                              subset = tau_df_splitsample$tau_quartile == 1)
+  
+  ate.quartile_2 <- avg_effect(Y = Y_splitsample, Y.hat = Y.hat_splitsample, W = W_splitsample, W.hat = W.hat_splitsample,
+                               weights = sample_weights_splitsample, predictions = predictions_oob_splitsample,
+                               subset = tau_df_splitsample$tau_quartile == 2)
+  
+  ate.quartile_3 <- avg_effect(Y = Y_splitsample, Y.hat = Y.hat_splitsample, W = W_splitsample, W.hat = W.hat_splitsample,
+                               weights = sample_weights_splitsample, predictions = predictions_oob_splitsample,
+                               subset = tau_df_splitsample$tau_quartile == 3)
+  
+  ate.bottom_75 <- avg_effect(Y = Y_splitsample, Y.hat = Y.hat_splitsample, W = W_splitsample, W.hat = W.hat_splitsample,
+                              weights = sample_weights_splitsample, predictions = predictions_oob_splitsample,
+                              subset = tau_df_splitsample$tau_quartile != 4)
+  
+  ate.high <- avg_effect(Y = Y_splitsample, Y.hat = Y.hat_splitsample, W = W_splitsample, W.hat = W.hat_splitsample,
+                         weights = sample_weights_splitsample, predictions = predictions_oob_splitsample,
+                         subset = tau_df_splitsample$tau_quartile %in% c(3,4))
+  
+  
+  ate.low <- avg_effect(Y = Y_splitsample, Y.hat = Y.hat_splitsample, W = W_splitsample, W.hat = W.hat_splitsample,
+                        weights = sample_weights_splitsample, predictions = predictions_oob_splitsample,
+                        subset = tau_df_splitsample$tau_quartile %in% c(1,2))
+  
+  
   
   subsample_tau_avgs <- list('highest_quartile' = ate.highest_25,
                              'bottom_three_quartiles' = ate.bottom_75,
@@ -225,8 +271,8 @@ make_single_causal_forest <- function(dataset,
   # subsample ate table
   subsample_ate_table <- subsample_tau_avgs %>% make_ate_summary_table(group_tau_avgs)
   
-  # subsample difference table
-  subsample_difference_table <- subsample_tau_avgs %>% make_subsample_difference_table()
+  # # subsample difference table
+  # subsample_difference_table <- subsample_tau_avgs %>% make_subsample_difference_table()
   
   # calibration test (Jon D) output (no plot)
   
@@ -239,7 +285,7 @@ make_single_causal_forest <- function(dataset,
     #'group_tau_avgs'=group_tau_avgs,
     #'subsample_tau_avgs'=subsample_tau_avgs,
     'subsample_ate_table' = subsample_ate_table,
-    'subsample_difference_table' = subsample_difference_table,
+    #'subsample_difference_table' = subsample_difference_table,
     #'forest_object'=tau.forest,
     'calibration_test'=forest_calibration,
     #'n_observations' = n.obs,
