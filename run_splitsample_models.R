@@ -11,7 +11,7 @@ library('furrr')
 library('purrr')
 
 
-n_splitsample_iterations <- 250
+n_splitsample_iterations <- 100
 splitsample_fraction <- 0.5
 default_n_trees <- 5000
 to_cluster <- F
@@ -338,6 +338,343 @@ make_causal_forest_for_each_outcome <- function(input_dataset,
 }
 
 
+
+make_single_X_RF <- function(dataset,
+                             controls,
+                             outcome,
+                             outcome_label,
+                             flip_outcome=FALSE,
+                             cluster=to_cluster,
+                             add_all_interactions = F,
+                             remove_duplicates=drop_duplicates,
+                             tune_num_reps = 100,
+                             tune_num_draws = 1000,
+                             tune_num_trees = 200,
+                             splitsample_df){
+  
+  
+  # Data Cleaning from build_grf_models
+  
+  if (remove_duplicates==T){
+    # get duplicate sids
+    duplicate_sids <- dataset %>% 
+      group_by(sid) %>% filter(n()>1) %>% 
+      distinct(sid) %>% pull(sid)
+    
+    dataset <- dataset %>% filter(!sid %in% duplicate_sids)
+  }
+  
+  
+  # keep observations complete on outcome and that has an inv prob weight
+  working_df <- dataset %>% drop_na(all_of(outcome)) #%>%  mutate(row_id = row_number())
+  splitsample_df <- splitsample_df %>% drop_na(all_of(outcome))
+  
+  n.obs <- nrow(working_df)
+  
+  X <- working_df[,controls]
+  W <- working_df %>% pull(dmatch)
+  Y <- working_df %>% pull(tidyselect::all_of(outcome))
+  sample_weights <- working_df %>% pull(inv_prob_weight)
+  
+  X_splitsample <- splitsample_df[,controls]
+  Y_splitsample <- splitsample_df %>% pull(tidyselect::all_of(outcome))
+  W_splitsample <- splitsample_df %>% pull(dmatch)
+  sample_weights_splitsample <- splitsample_df %>% pull(inv_prob_weight)
+  
+  cluster_ids <- working_df %>% pull(sid) # we'll use these if we have duplicates n the data
+  cluster_ids_splitsample <- splitsample_df %>% pull(sid)
+  
+  
+  # X-Learner (Based on causalToolbox package + weights)
+  
+  # First stage --------------------------------------------------------------
+  Y_0 <- Y[W == 0]
+  Y_1 <- Y[W == 1]
+  
+  X_0 <- X[W == 0, ]
+  X_1 <- X[W == 1, ]
+  
+  sample_weights_0 <- sample_weights[W == 0]
+  sample_weights_1 <- sample_weights[W == 1]
+  
+  m_0 <- regression_forest(X_0, Y_0, 
+                           tune.parameters = c("sample.fraction", "mtry",
+                                               "honesty.fraction", "honesty.prune.leaves",
+                                               "alpha", "imbalance.penalty"),
+                           min.node.size = 5,
+                           sample.weights = sample_weights_0,
+                           #clusters = cluster_ids,
+                           # sample.fraction = default_sample_fraction,
+                           num.trees = default_n_trees,
+                           tune.num.trees = tune_num_trees,
+                           tune.num.draws = tune_num_draws,
+                           tune.num.reps = tune_num_reps
+  )
+  
+  
+  m_1 <- regression_forest(X_1, Y_1, 
+                           tune.parameters = c("sample.fraction", "mtry",
+                                               "honesty.fraction", "honesty.prune.leaves",
+                                               "alpha", "imbalance.penalty"),
+                           min.node.size = 5,
+                           sample.weights = sample_weights_1,
+                           #clusters = cluster_ids,
+                           # sample.fraction = default_sample_fraction,
+                           num.trees = default_n_trees,
+                           tune.num.trees = tune_num_trees,
+                           tune.num.draws = tune_num_draws,
+                           tune.num.reps = tune_num_reps
+  )
+  
+  
+  Y.hat <- Y*NA
+  Y.hat[W == 0] <- predict(m_0) %>% pull(predictions)
+  Y.hat[W == 1] <- predict(m_1) %>% pull(predictions)
+  
+  Y.hat_splitsample <- Y_splitsample*NA
+  Y.hat_splitsample[W_splitsample == 0] <- predict(m_0, X_splitsample[W_splitsample==0,]) %>% pull(predictions)
+  Y.hat_splitsample[W_splitsample == 1] <- predict(m_1, X_splitsample[W_splitsample==1,]) %>% pull(predictions)
+  
+  
+  # Second Stage -------------------------------------------------------------
+  r_0 <-  predict(m_1, X_0) %>% pull(predictions) - Y_0
+  r_1 <- Y_1 - (predict(m_0, X_1) %>% pull(predictions))
+  
+  m_tau_0 <- regression_forest(X_0, r_0, 
+                               tune.parameters = c("sample.fraction", "mtry",
+                                                   "honesty.fraction", "honesty.prune.leaves",
+                                                   "alpha", "imbalance.penalty"),
+                               min.node.size = 5,
+                               sample.weights = sample_weights_0,
+                               #clusters = cluster_ids,
+                               # sample.fraction = default_sample_fraction,
+                               num.trees = default_n_trees,
+                               tune.num.trees = tune_num_trees,
+                               tune.num.draws = tune_num_draws,
+                               tune.num.reps = tune_num_reps
+  )
+  
+  
+  m_tau_1 <- regression_forest(X_1, r_1, 
+                               tune.parameters = c("sample.fraction", "mtry",
+                                                   "honesty.fraction", "honesty.prune.leaves",
+                                                   "alpha", "imbalance.penalty"),
+                               min.node.size = 5,
+                               sample.weights = sample_weights_1,
+                               #clusters = cluster_ids,
+                               # sample.fraction = default_sample_fraction,
+                               num.trees = default_n_trees,
+                               tune.num.trees = tune_num_trees,
+                               tune.num.draws = tune_num_draws,
+                               tune.num.reps = tune_num_reps
+  )
+  
+  
+  
+  # Prop score estimation ----------------------------------------------------
+  m_prop <-
+    regression_forest(X, W, 
+                      tune.parameters = c("sample.fraction", "mtry",
+                                          "honesty.fraction", "honesty.prune.leaves",
+                                          "alpha", "imbalance.penalty"),
+                      min.node.size = 5,
+                      sample.weights = sample_weights,
+                      #clusters = cluster_ids,
+                      # sample.fraction = default_sample_fraction,
+                      num.trees = default_n_trees,
+                      tune.num.trees = tune_num_trees,
+                      tune.num.draws = tune_num_draws,
+                      tune.num.reps = tune_num_reps
+    ) 
+  
+  prop_scores <- predict(m_prop) %>% pull(predictions)
+  prop_scores_splitsample <- predict(m_prop, X_splitsample) %>% pull(predictions)
+  
+  # use the prop scores and the m_tau models to 
+  predictions_oob <- prop_scores * (predict(m_tau_0,X) %>% pull(predictions)) +
+    (1 - prop_scores)  * (predict(m_tau_1,X) %>% pull(predictions))
+  
+  predictions_oob_splitsample <- prop_scores_splitsample * (predict(m_tau_0,X_splitsample) %>% pull(predictions)) +
+    (1 - prop_scores_splitsample)  * (predict(m_tau_1,X_splitsample) %>% pull(predictions))
+  
+  
+  # Calibration Plot --------------------------------------------
+  # mean.pred <- weighted.mean(predictions_oob, sample_weights)
+  # DF <- data.frame(target = unname(Y - Y.hat), 
+  #                  mean.forest.prediction = unname(W - prop_scores) * 
+  #                    mean.pred,
+  #                  differential.forest.prediction = unname(W - prop_scores) * (predictions_oob - mean.pred))
+  
+  mean.pred <- weighted.mean(predictions_oob_splitsample, sample_weights_splitsample)
+  DF <- data.frame(target = unname(Y_splitsample - Y.hat_splitsample), 
+                   mean.forest.prediction = unname(W_splitsample - prop_scores_splitsample) * mean.pred,
+                   differential.forest.prediction = unname(W_splitsample - prop_scores_splitsample) * (predictions_oob_splitsample - mean.pred))
+  
+  # changed "observation.weight" to "sample_weights"
+  best.linear.predictor <- lm(target ~ mean.forest.prediction + 
+                                differential.forest.prediction + 0, weights = sample_weights_splitsample, 
+                              data = DF)
+  # blp.summary <- lmtest::coeftest(best.linear.predictor, vcov = sandwich::vcovCL, 
+  #                                 type = "HC3", cluster = clusters)
+  # changed this because we are not clustering (can change type of HC errors )
+  blp.summary <- lmtest::coeftest(best.linear.predictor,
+                                  vcov=sandwich::vcovHC(best.linear.predictor, type="HC1"))
+  
+  attr(blp.summary, "method") <- paste("Best linear fit using forest predictions (on held-out data)", 
+                                       "as well as the mean forest prediction as regressors, along", 
+                                       "with one-sided heteroskedasticity-robust (HC3) SEs", 
+                                       sep = "\n")
+  dimnames(blp.summary)[[2]][4] <- gsub("[|]", "", dimnames(blp.summary)[[2]][4])
+  blp.summary[, 4] <- ifelse(blp.summary[, 3] < 0, 1 - blp.summary[, 
+                                                                   4]/2, blp.summary[, 4]/2)
+  forest_calibration <- blp.summary %>% broom::tidy()
+  
+  # output should be a list with
+  # - avg causal effects
+  group_tau_avgs <- c('overall'= mean.pred#avg_tx_effect_overall,
+                      # 'treated'=avg_tx_effect_treated,
+                      # 'control'=avg_tx_effect_control
+  )
+  
+  # - the predictions + variance in a df with the sids
+  if (flip_outcome == F) {
+    tau_df_splitsample <- tibble(sid = cluster_ids_splitsample,
+                                 grf_tau_hat = predictions_oob_splitsample#,
+                                 #grf_variance = variance_splitsample,
+                                 #grf_sd = standard_dev_splitsample
+    ) %>% 
+      makeDummies()
+    
+    tau_df <- tibble(sid = cluster_ids,
+                     grf_tau_hat = predictions_oob#,
+                     #grf_variance = variance,
+                     #grf_sd = standard_dev
+    ) %>% 
+      makeDummies()
+  }
+  
+  if (flip_outcome == T) {
+    tau_df <- tibble(sid = cluster_ids,
+                     grf_tau_hat = predictions_oob#,
+                     #grf_variance = variance,
+                     #grf_sd = standard_dev
+    ) %>% 
+      makeDummies(flipped = T)
+    
+    tau_df_splitsample <- tibble(sid = cluster_ids_splitsample,
+                                 grf_tau_hat = predictions_oob_splitsample#,
+                                 #grf_variance = variance_splitsample,
+                                 #grf_sd = standard_dev_splitsample
+    ) %>% 
+      makeDummies(flipped = T)
+  } 
+  
+  # now that we have the quartile dummies, we can get quartile level effects
+  ate.highest_25 <- avg_effect(Y = Y_splitsample, Y.hat = Y.hat_splitsample, W = W_splitsample, W.hat = prop_scores_splitsample,
+                               weights = sample_weights_splitsample, predictions = predictions_oob_splitsample,
+                               subset = tau_df_splitsample$tau_quartile == 4)
+  
+  ate.bottom_25 <- avg_effect(Y = Y_splitsample, Y.hat = Y.hat_splitsample, W = W_splitsample, W.hat = prop_scores_splitsample,
+                              weights = sample_weights_splitsample, predictions = predictions_oob_splitsample,
+                              subset = tau_df_splitsample$tau_quartile == 1)
+  
+  ate.quartile_2 <- avg_effect(Y = Y_splitsample, Y.hat = Y.hat_splitsample, W = W_splitsample, W.hat = prop_scores_splitsample,
+                               weights = sample_weights_splitsample, predictions = predictions_oob_splitsample,
+                               subset = tau_df_splitsample$tau_quartile == 2)
+  
+  ate.quartile_3 <- avg_effect(Y = Y_splitsample, Y.hat = Y.hat_splitsample, W = W_splitsample, W.hat = prop_scores_splitsample,
+                               weights = sample_weights_splitsample, predictions = predictions_oob_splitsample,
+                               subset = tau_df_splitsample$tau_quartile == 3)
+  
+  ate.bottom_75 <- avg_effect(Y = Y_splitsample, Y.hat = Y.hat_splitsample, W = W_splitsample, W.hat = prop_scores_splitsample,
+                              weights = sample_weights_splitsample, predictions = predictions_oob_splitsample,
+                              subset = tau_df_splitsample$tau_quartile != 4)
+  
+  ate.high <- avg_effect(Y = Y_splitsample, Y.hat = Y.hat_splitsample, W = W_splitsample, W.hat = prop_scores_splitsample,
+                         weights = sample_weights_splitsample, predictions = predictions_oob_splitsample,
+                         subset = tau_df_splitsample$tau_quartile %in% c(3,4))
+  
+  
+  ate.low <- avg_effect(Y = Y_splitsample, Y.hat = Y.hat_splitsample, W = W_splitsample, W.hat = prop_scores_splitsample,
+                        weights = sample_weights_splitsample, predictions = predictions_oob_splitsample,
+                        subset = tau_df_splitsample$tau_quartile %in% c(1,2))
+  
+  subsample_tau_avgs <- list('highest_quartile' = ate.highest_25,
+                             'bottom_three_quartiles' = ate.bottom_75,
+                             'above_median'=ate.high,
+                             'below_median'=ate.low,
+                             'quartile_1' = ate.bottom_25,
+                             'quartile_2' = ate.quartile_2,
+                             'quartile_3' = ate.quartile_3,
+                             'quartile_4' = ate.highest_25)
+  
+  # - 'augmented' master df (the above df merged with the full master dataset)
+  #augmented_df <- working_df %>% left_join(tau_df, by='sid')
+  augmented_df <- splitsample_df %>% left_join(tau_df_splitsample, by='sid')
+  
+  # quartile baseline table
+  quartile_heterogeneity_table <- augmented_df %>% make_quartile_baseline_table(subsample_tau_avgs)
+  
+  # subsample ate table
+  subsample_ate_table <- subsample_tau_avgs %>% make_ate_summary_table(group_tau_avgs)
+  
+  
+  output_list <- list(
+    # 'tau_df' = tau_df,
+    # 'augmented_df' = augmented_df,
+    #'quartile_heterogeneity_table' = quartile_heterogeneity_table,
+    #'tau_rank_plot'=tau_rank_plot,
+    #'group_tau_avgs'=group_tau_avgs,
+    #'subsample_tau_avgs'=subsample_tau_avgs,
+    'subsample_ate_table' = subsample_ate_table,
+    #'subsample_difference_table' = subsample_difference_table,
+    #'forest_object'=tau.forest,
+    'calibration_test'=forest_calibration,
+    #'n_observations' = n.obs,
+    #'tuning_output' = tau.forest$tuning.output,
+    'quartile_heterogeneity_table' = quartile_heterogeneity_table)
+  
+  return(output_list)  
+}
+
+
+make_xrf_for_each_outcome <- function(input_dataset,
+                                      splitsample_df,
+                                      input_controls,
+                                      outcomes,
+                                      outcome_labels,
+                                      flipped_outcomes=c()){
+  final_forest_list <- list()
+  
+  for (i in 1:length(outcomes)){
+    
+    current_outcome <- outcomes[i]
+    current_outcome_label <- outcome_labels[i]
+    cat("Running: ", current_outcome)
+    if (current_outcome %in% flipped_outcomes){
+      single_forest_output <- make_single_X_RF(dataset = input_dataset,
+                                               controls = input_controls,
+                                               outcome = current_outcome,
+                                               outcome_label = current_outcome_label,
+                                               flip_outcome = T,
+                                               splitsample_df = splitsample_df)
+    } else {
+      single_forest_output <- make_single_X_RF(dataset = input_dataset,
+                                               controls = input_controls,
+                                               outcome = current_outcome,
+                                               outcome_label = current_outcome_label,
+                                               splitsample_df = splitsample_df)
+    }
+    
+    
+    
+    final_forest_list[[current_outcome_label]] <- single_forest_output
+    
+  }
+  
+  return(final_forest_list)
+}
+
 # OVERALL DATA WORK ----
 # - adding inv probability weights
 # - rand block mean imputation
@@ -399,12 +736,18 @@ run_splitsample_models <- function(input_seed){
                                                        flipped_outcomes)
   
   # run xrf for each outcome
-  
+  x_learner_grf <- make_xrf_for_each_outcome(estimation_df,
+                                             splitsample_df = holdout_df,
+                                             input_controls,
+                                             outcomes = outcomes_of_interest,
+                                             outcomes_of_interest_labels,
+                                             flipped_outcomes)
   
   # run BART method(s)
   
   
-  models <- list(causal_forest)
+  models <- list(causal_forest,
+                 x_learner_grf)
   
   return(models)
 }
@@ -414,7 +757,7 @@ run_splitsample_models <- function(input_seed){
 # run in parallel
 start_time <- Sys.time()
 # setting up furr plan
-plan(multisession, workers = 20)
+plan(multisession, workers = 10)
 all_splitsample_models <- future_map(seeds, run_splitsample_models)
 
 end_time <- Sys.time()
@@ -427,6 +770,7 @@ all_splitsample_models %>% saveRDS('all_splitsample_models.Rds')
 # combine models ----
 combined_models <- all_splitsample_models[[1]]
 n_models <- length(combined_models)
+n_outcomes <- length(combined_models[[1]])
 for (i in 1:length(all_splitsample_models)){
   # for each splitsample...
   current_splitsample_iteration <- all_splitsample_models[[i]]
@@ -435,7 +779,6 @@ for (i in 1:length(all_splitsample_models)){
   for (m in 1:n_models){
     # get mth model
     current_model <- current_splitsample_iteration[[m]]
-    n_outcomes <- length(current_model)
     # for each outcome...
     for (j in 1:n_outcomes){
       # get each dataframe
