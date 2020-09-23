@@ -169,8 +169,34 @@ make_single_causal_forest <- function(dataset,
                                       weights = sample_weights_splitsample, predictions = predictions_oob_splitsample,
                                       subset = NULL)
   
+  
   # test calibration of forest
-  forest_calibration <- test_calibration(tau.forest) %>% broom::tidy()
+  prop_scores_splitsample <- W.hat_splitsample
+  
+  mean.pred <- weighted.mean(predictions_oob_splitsample, sample_weights_splitsample)
+  DF <- data.frame(target = unname(Y_splitsample - Y.hat_splitsample), 
+                   mean.forest.prediction = unname(W_splitsample - prop_scores_splitsample) * mean.pred,
+                   differential.forest.prediction = unname(W_splitsample - prop_scores_splitsample) * (predictions_oob_splitsample - mean.pred))
+  
+  # changed "observation.weight" to "sample_weights"
+  best.linear.predictor <- lm(target ~ mean.forest.prediction + 
+                                differential.forest.prediction + 0, weights = sample_weights_splitsample, 
+                              data = DF)
+  # blp.summary <- lmtest::coeftest(best.linear.predictor, vcov = sandwich::vcovCL, 
+  #                                 type = "HC3", cluster = clusters)
+  # changed this because we are not clustering (can change type of HC errors )
+  blp.summary <- lmtest::coeftest(best.linear.predictor,
+                                  vcov=sandwich::vcovHC(best.linear.predictor, type="HC1"))
+  
+  attr(blp.summary, "method") <- paste("Best linear fit using forest predictions (on held-out data)", 
+                                       "as well as the mean forest prediction as regressors, along", 
+                                       "with one-sided heteroskedasticity-robust (HC3) SEs", 
+                                       sep = "\n")
+  dimnames(blp.summary)[[2]][4] <- gsub("[|]", "", dimnames(blp.summary)[[2]][4])
+  blp.summary[, 4] <- ifelse(blp.summary[, 3] < 0, 1 - blp.summary[, 
+                                                                   4]/2, blp.summary[, 4]/2)
+  forest_calibration <- blp.summary %>% broom::tidy()
+  #forest_calibration <- test_calibration(tau.forest) %>% broom::tidy()
   
   # output should be a list with
   # - avg causal effects
@@ -278,7 +304,7 @@ make_single_causal_forest <- function(dataset,
   # subsample_difference_table <- subsample_tau_avgs %>% make_subsample_difference_table()
   
   # calibration test (Jon D) output (no plot)
-  
+  calibration_tests_naive <- make_naive_calibration_tests(tau_df, outcome)
   
   output_list <- list(
     # 'tau_df' = tau_df,
@@ -291,6 +317,8 @@ make_single_causal_forest <- function(dataset,
     #'subsample_difference_table' = subsample_difference_table,
     #'forest_object'=tau.forest,
     'calibration_test'=forest_calibration,
+    'calibration_tests_naive_linear' = calibration_tests_naive[[1]],
+    'calibration_tests_naive_quartile_dummies' = calibration_tests_naive[[2]],
     #'n_observations' = n.obs,
     #'tuning_output' = tau.forest$tuning.output,
     'quartile_heterogeneity_table' = quartile_heterogeneity_table)
@@ -349,7 +377,7 @@ make_single_X_RF <- function(dataset,
                              remove_duplicates=drop_duplicates,
                              tune_num_reps = 100,
                              tune_num_draws = 1000,
-                             tune_num_trees = 200,
+                             tune_num_trees = 100,
                              splitsample_df){
   
   
@@ -619,6 +647,9 @@ make_single_X_RF <- function(dataset,
   subsample_ate_table <- subsample_tau_avgs %>% make_ate_summary_table(group_tau_avgs)
   
   
+  # calibration test (Jon D) output (no plot)
+  calibration_tests_naive <- make_naive_calibration_tests(tau_df, outcome)
+  
   output_list <- list(
     # 'tau_df' = tau_df,
     # 'augmented_df' = augmented_df,
@@ -630,11 +661,13 @@ make_single_X_RF <- function(dataset,
     #'subsample_difference_table' = subsample_difference_table,
     #'forest_object'=tau.forest,
     'calibration_test'=forest_calibration,
+    'calibration_tests_naive_linear' = calibration_tests_naive[[1]],
+    'calibration_tests_naive_quartile_dummies' = calibration_tests_naive[[2]],
     #'n_observations' = n.obs,
     #'tuning_output' = tau.forest$tuning.output,
     'quartile_heterogeneity_table' = quartile_heterogeneity_table)
   
-  return(output_list)  
+  return(output_list)   
 }
 
 
