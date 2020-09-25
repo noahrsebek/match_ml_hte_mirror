@@ -1,4 +1,6 @@
-set.seed(09212020)
+#set.seed(09212020)
+#set.seed(09242020)
+set.seed(09252020)
 
 # loading packages and setting global vars ----
 library('dplyr')
@@ -11,23 +13,15 @@ library('furrr')
 library('purrr')
 
 
-n_splitsample_iterations <- 100
+n_splitsample_iterations <- 250
 splitsample_fraction <- 0.5
 default_n_trees <- 5000
 to_cluster <- F
 drop_duplicates <- T
 
-
-
-filename <- "grf/final_forests_missingness"
-
-if (to_cluster==F){
-  filename <- filename %>% paste0("_no_cluster")
-}
-
-if (drop_duplicates==T){
-  filename <- filename %>% paste0("_no_dupes")
-}
+# overriding flipped outcomes (for the time being)
+flipped_outcomes <- c('mathfail_post1',
+                      'mathfailpercent_post1')
 
 
 # load data ----
@@ -559,7 +553,11 @@ make_single_X_RF <- function(dataset,
   
   # output should be a list with
   # - avg causal effects
-  group_tau_avgs <- c('overall'= mean.pred#avg_tx_effect_overall,
+  avg_tx_effect_overall <- avg_effect(Y = Y_splitsample, Y.hat = Y.hat_splitsample, W = W_splitsample, W.hat = prop_scores_splitsample,
+                                      weights = sample_weights_splitsample, predictions = predictions_oob_splitsample,
+                                      subset = NULL)
+  
+  group_tau_avgs <- c('overall'= avg_tx_effect_overall#avg_tx_effect_overall,
                       # 'treated'=avg_tx_effect_treated,
                       # 'control'=avg_tx_effect_control
   )
@@ -790,17 +788,28 @@ run_splitsample_models <- function(input_seed){
 # run in parallel
 start_time <- Sys.time()
 # setting up furr plan
-plan(multisession, workers = 10)
-all_splitsample_models <- future_map(seeds, run_splitsample_models)
+plan(multisession, workers = 12)
+all_splitsample_models <- future_map(seeds, run_splitsample_models, .options = future_options(scheduling=Inf))
 
 end_time <- Sys.time()
 
 end_time - start_time
 
-all_splitsample_models %>% saveRDS('all_splitsample_models.Rds')
+all_splitsample_models %>% saveRDS('all_splitsample_models3.Rds')
 
 
 # combine models ----
+
+
+models1 <- readRDS('all_splitsample_models.Rds')
+models2 <- readRDS('all_splitsample_models2.Rds')
+models3 <- readRDS('all_splitsample_models3.Rds')
+
+
+all_splitsample_models <- append(models1, models2) %>% append(models3)
+
+
+
 combined_models <- all_splitsample_models[[1]]
 n_models <- length(combined_models)
 n_outcomes <- length(combined_models[[1]])
@@ -841,3 +850,4 @@ for (m in 1:n_models){
   }
 }
 
+saveRDS(combined_models, "combined_models.Rds")

@@ -229,7 +229,7 @@ make_ate_summary_table <- function(subsample_tau_avgs,
   
   # Overall
   ate_95ci_table_overall <- tibble("Sample" = "Whole Sample",
-                                   "Average Treatment Effect" = group_tau_avgs['overall']#,
+                                   "Average Treatment Effect" = group_tau_avgs['overall.estimate']#,
                                    #input_forest$group_tau_avgs['overall.std.err']),
                                    #"Standard Error" = round(input_forest$group_tau_avgs['overall.std.err'], 3)
   )
