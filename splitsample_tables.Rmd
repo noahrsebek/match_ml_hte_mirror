@@ -32,13 +32,17 @@ print_all_model_tables <- function(model_list){
     
     for (table in table_names){
       
+      if (table %in% "calibration_tests_naive_linear" ){table_name <- "naive calibration test quartile dummies"}
+      else if (table %in% "calibration_tests_naive_quartile_dummies"){table_name <- "naive calibration test linear"}
+      else {table_name <- table}
+      
       current_table <- model_list[[outcome]][[table]]
       colnames(current_table) <- gsub("_", " ", colnames(current_table))
       
       
       current_table %>% kable(booktabs=T,
                               escape=T, digits=3,
-                              caption = paste0(gsub("_", " ", table), " for ", outcome),
+                              caption = paste0(gsub("_", " ", table_name), " for ", outcome),
                               align = rep('c', ncol(.))) %>%
         column_spec(2:ncol(current_table), width = '1.2cm') %>% 
         kable_styling(latex_options = c(#'striped', 'scale_down',

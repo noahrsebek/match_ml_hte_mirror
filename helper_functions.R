@@ -10,7 +10,7 @@ makeDummies <- function(dataframe,
   
   #qcut function taken from Hadley Wickham answer on stackoverflow
   qcut <- function(x, n) {
-    cut(x, quantile(x, seq(0, 1, length = n + 1)), labels = seq_len(n),
+    cut(x, quantile(x, seq(0, 1, length = n + 1), na.rm = T), labels = seq_len(n),
         include.lowest = TRUE)
   }
   
@@ -289,7 +289,7 @@ make_naive_calibration_tests <- function(tau_df, outcome_of_interest,
                                          master=master_pool){
   
   
-  # -> add ventiles
+  # -> add quantiles
   qcut <- function(x, n) {
     cut(x, quantile(x, seq(0, 1, length = n + 1)), labels = seq_len(n),
         include.lowest = TRUE)
@@ -315,7 +315,8 @@ make_naive_calibration_tests <- function(tau_df, outcome_of_interest,
   quantile_itts <- lm(paste0(outcome_of_interest, " ~ ",
                              "dmatch:calibration_quantiles + calibration_quantiles +",
                              paste(itt_vars_calibration, collapse='+')),
-                      data=master) %>% broom::tidy() %>% filter(term %>% startsWith('dmatch:')) %>% 
+                      data=master) %>% broom::tidy() %>% select(-statistic) %>% 
+    filter(term %>% startsWith('dmatch:')) %>% 
     mutate( term = term %>% stringr::str_replace('dmatch:calibration_quantiles', "")) %>% 
     rename(calibration_quantiles = term)
   
@@ -329,7 +330,8 @@ make_naive_calibration_tests <- function(tau_df, outcome_of_interest,
   calibration_test_statistic <- lm(paste0(outcome_of_interest, " ~ ",
                                           "dmatch + grf_tau_hat + grf_tau_hat*dmatch +",
                                           paste0(itt_vars_calibration, collapse="+")),
-                                   data=master) %>% broom::tidy() %>% filter(term %in% "dmatch:grf_tau_hat")
+                                   data=master) %>% broom::tidy() %>% select(-statistic) %>% 
+    filter(term %in% "dmatch:grf_tau_hat")
   
   
   calibration_test_note <- paste0("PTE x Treatment interaction estimate is ",
@@ -344,5 +346,32 @@ make_naive_calibration_tests <- function(tau_df, outcome_of_interest,
   return(list(quantile_itts,
               calibration_test_statistic))
   
+}
+
+
+make_cross_pte_comparison_table <- function(one_iteration){
+  cross_pte_comparisons <- NULL
+  
+  for (row in 1:nrow(bivariate_pte_comparisons)){
+    outcome_1 <- bivariate_pte_comparisons[[row, 'outcome1']]
+    outcome_2 <- bivariate_pte_comparisons[[row, 'outcome2']]
+    
+    
+    outcome_1_label <- which(outcome_and_label_list == outcome_1) %>% names()
+    outcome_2_label <- which(outcome_and_label_list == outcome_2) %>% names()
+    
+    
+    # get pte's from both
+    single_regression_row <- one_iteration[[outcome_1_label]]$tau_df_splitsample %>% select(sid, grf_tau_hat) %>% left_join(
+      one_iteration[[outcome_2_label]]$tau_df_splitsample %>% select(sid, grf_tau_hat),
+      by='sid') %>% lm(grf_tau_hat.y ~ grf_tau_hat.x, data=.) %>% 
+      lmtest::coeftest(vcov=sandwich::vcovHC(., type="HC1")) %>% broom::tidy() %>% 
+      filter(!term %in% '(Intercept)') %>% select(-statistic)
+    
+    single_regression_row[1,'term'] <- paste(outcome_1_label, "~", outcome_2_label)
+    
+    cross_pte_comparisons <- bind_rows(cross_pte_comparisons, single_regression_row)
+  }
+  cross_pte_comparisons %>% rename(Comparison = term)
 }
 
