@@ -2,6 +2,7 @@
 overall_seeds = c(09212020, 09242020, 09252020, 09302020, 05101995, 12301990, 05111995, 02271993)
 
 for (overall_seed in overall_seeds){
+  
   set.seed(overall_seed)
   #set.seed(09242020)
   #set.seed(09252020)
@@ -23,9 +24,6 @@ for (overall_seed in overall_seeds){
   to_cluster <- F
   drop_duplicates <- T
   
-  # overriding flipped outcomes (for the time being)
-  flipped_outcomes <- c()
-  
   
   
   bivariate_pte_comparisons <- tribble(
@@ -44,6 +42,12 @@ for (overall_seed in overall_seeds){
   setwd("/export/projects/migrated-BAM/Match_AnalysisFiles_May2016/Results/2020/grf")
   source(file = 'helper_functions.R')
   source(file = 'grf_globals.R')
+  
+  # overriding flipped outcomes (for the time being)
+  flipped_outcomes <- c()
+  
+  
+  
   master_pool <- load_master_dataset()
   
   # main ML functions ----
