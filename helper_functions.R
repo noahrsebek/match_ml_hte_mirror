@@ -484,3 +484,32 @@ make_cross_pte_comparison_table <- function(one_iteration){
   cross_pte_comparisons %>% rename(Comparison = term)
 }
 
+
+impute_block_baselines <- function(input_dataset,
+                                   list_of_controls,
+                                   type = 'median'){
+  
+  input_dataset <- input_dataset %>% mutate_at(controls, as.numeric)
+  
+  for (block in unique(input_dataset$blocknum)){
+    # for each variable...
+    for (baseline_var in list_of_controls){
+      # get block statistic for this variable
+      if (type %in% 'median'){
+        temp_block_stat <- master_pool %>% filter(blocknum %in% block) %>% pull(baseline_var) %>% median(na.rm=T)
+        
+      }
+      if (type %in% 'mean'){
+        temp_block_stat <- master_pool %>% filter(blocknum %in% block) %>% pull(baseline_var) %>% mean(na.rm=T)
+      }  
+      
+      # find all ppl in block missing this variable, replace value
+      input_dataset[which(input_dataset$blocknum %in% block &
+                            is.na(input_dataset[,baseline_var])), baseline_var] <- temp_block_stat
+    }
+  }
+  
+  return(input_dataset)
+  
+}
+
