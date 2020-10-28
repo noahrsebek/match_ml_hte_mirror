@@ -72,6 +72,52 @@ master_pool <- master_pool %>% filter(!sid %in% duplicate_sids)
 
 master_pool <- master_pool %>%  drop_na(inv_prob_weight) %>%  mutate(row_id = row_number())
 
+# add in new grade outcomes, add these to the list
+new_grade_vars <- read_csv("/export/projects/migrated-BAM/Match_AnalysisFiles_May2016/Results/2020/new_grade_variables.csv")
+new_grade_vars <- new_grade_vars %>% select(study, sid,
+                                            math_failures_full, math_failures_no_selections,
+                                            math_gpa_full,
+                                            nonmathcore_gpa_all, nonmathcore_fails_all)
+
+master_pool <- master_pool %>% left_join(new_grade_vars, by=c('sid', 'study'))
+
+
+
+
+# redefining outcomes of interest to include the new vars
+outcomes_of_interest <- c('mathxil_z_post1_np',
+                          "math_gpa_full",
+                          "math_failures_full",
+                          "math_failures_no_selections",
+                          #"mathfailpercent_post1",
+                          "nonmathcore_gpa_all",
+                          "nonmathcore_fails_all",
+                          "readxil_z_post1_np",
+                          "graduated_ontime",
+                          "graduated_ever",
+                          'treat_post2',
+                          "gpa11_math",
+                          "eleventh_grade_math_z"
+)
+
+
+outcomes_of_interest_labels <- c('Math test score (Z)',
+                                 'Math GPA (full)',
+                                 "Math Course Failures (full)",
+                                 "Math Course Failures (no selections)",
+                                 #"Percent of Math Courses Failed",
+                                 "Non-math Core GPA (all classes)",
+                                 "Non-math Core Failures (all classes)",
+                                 "Reading test score (Z)",
+                                 "Graduated on-time",
+                                 "Graduated ever",
+                                 'Participated in Study 1 Year 2',
+                                 "11th Grade Math GPA",
+                                 "11th Grade Math Test Score (Z)")
+
+outcome_and_label_list <- outcomes_of_interest
+names(outcome_and_label_list) <- outcomes_of_interest_labels
+
 # # imputing baselines
 # master_pool <- master_pool %>% impute_block_baselines(controls_sans_missingness_dummies)
 
@@ -142,16 +188,16 @@ make_single_bcf <- function(dataset, controls, outcome){
   naive_linear <- naive_calibration_tests[[2]]
   naive_quantile <- naive_calibration_tests[[1]]
   calibration_plot <- make_calibration_plot(tau_df, outcome)
-  calibration_table <- make_calibration_table(tau.hat, Y.hat)
+  calibration_table <- make_calibration_table(tau.hat, Y.hat, Y, W, W.hat, sample_weights)
   
 
   # average effect table
-  avg_tx_effect_overall <- avg_effect(Y = Y, Y.hat = Y.hat, W = W, W.hat = pi_hat,
+  avg_tx_effect_overall <- avg_effect(Y = Y, Y.hat = Y.hat, W = W, W.hat = W.hat,
                                       weights = sample_weights,
                                       predictions = tau.hat,
                                       subset = NULL)
   group_tau_avgs <- c('overall'=avg_tx_effect_overall)
-  subsample_tau_avgs <- make_average_effect_list(tau.hat, Y.hat)
+  subsample_tau_avgs <- make_average_effect_list(tau.hat, Y.hat, Y, W, W.hat, sample_weights, tau_df)
   
   subsample_ate_table <- subsample_tau_avgs %>% make_ate_summary_table(group_tau_avgs)
   
@@ -184,18 +230,20 @@ make_single_bcf <- function(dataset, controls, outcome){
     temp_naive_quantile <- temp_naive_calibration_tests[[1]] %>%
       select(calibration_quantiles, estimate)
     
-    temp_calibration_table <- make_calibration_table(temp_tau.hat, temp_Y.hat) %>% select(term, estimate)
+    temp_calibration_table <- make_calibration_table(temp_tau.hat, temp_Y.hat,
+                                                     Y, W, W.hat, sample_weights) %>% select(term, estimate)
     
     
     # average effect table
     avg_tx_effect_overall <- avg_effect(Y = Y,
                                         Y.hat = temp_Y.hat,
-                                        W = W, W.hat = pi_hat,
+                                        W = W, W.hat = W.hat,
                                         weights = sample_weights,
                                         predictions = temp_tau.hat,
                                         subset = NULL)
     temp_group_tau_avgs <- c('overall'=avg_tx_effect_overall)
-    temp_subsample_tau_avgs <- make_average_effect_list(temp_tau.hat, temp_Y.hat)
+    temp_subsample_tau_avgs <- make_average_effect_list(temp_tau.hat, temp_Y.hat, Y,
+                                                        W, W.hat, sample_weights, tau_df)
     
     temp_subsample_ate_table <- temp_subsample_tau_avgs %>% make_ate_summary_table(temp_group_tau_avgs)
     
@@ -231,7 +279,7 @@ make_single_bcf <- function(dataset, controls, outcome){
   return(bart_output)
 }
 
-make_single_bcf(master_pool, controls_sans_missingness_dummies, outcomes_of_interest[1])
+#make_single_bcf(master_pool, controls_sans_missingness_dummies, outcomes_of_interest[1])
 
 
 

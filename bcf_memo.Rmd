@@ -87,14 +87,19 @@ for (outcome in names(all_bcf_models)){
   cat('# Outcome: ', outcome, " \n")
   
   current_model <- all_bcf_models[[outcome]]
-  
+  model_item_names <- names(current_model)
+  i = 0
   for (item in current_model){
+    i = i+1
+    current_name <- model_item_names[i] %>% stringr::str_replace_all("_", " ")
+    
     if (class(item) %in% 'gg'){
       print(item)
     }
     if (class(item) %in% 'tbl_df'){
       item %>%
-      kable(booktabs=T, digits=3, escape=T) %>%
+      kable(booktabs=T, digits=3, escape=T,
+            caption = paste0(current_name, " - ", outcome)) %>%
       kable_styling(latex_options = c(#'striped',
       'HOLD_position')) %>% print()
     }

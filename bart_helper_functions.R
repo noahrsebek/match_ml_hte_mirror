@@ -1,5 +1,5 @@
 
-make_average_effect_list <- function(tau.hat, Y.hat){
+make_average_effect_list <- function(tau.hat, Y.hat, Y, W, W.hat, sample_weights, tau_df){
   ate.highest_25 <- avg_effect(Y = Y, Y.hat = Y.hat, W = W, W.hat = W.hat,
                                weights = sample_weights, predictions = tau.hat,
                                subset = tau_df$tau_quartile == 4)
@@ -43,7 +43,7 @@ make_average_effect_list <- function(tau.hat, Y.hat){
   subsample_tau_avgs
 }
 
-make_calibration_table <- function(tau.hat, Y.hat){
+make_calibration_table <- function(tau.hat, Y.hat, Y, W, W.hat, sample_weights){
   mean.pred <- mean(tau.hat)
   
   DF <- data.frame(target = unname(Y - Y.hat), 
@@ -64,9 +64,9 @@ make_calibration_table <- function(tau.hat, Y.hat){
                                                                    4]/2, blp.summary[, 4]/2)
   forest_calibration <- blp.summary %>%
     broom::tidy() %>% 
-    mutate(lower_CI = estimate - 1.96*std.error,
-           upper_CI = estimate + 1.96*std.error) %>% 
-    select(-statistic, std.error)
+    # mutate(lower_CI = estimate - 1.96*std.error,
+    #        upper_CI = estimate + 1.96*std.error) %>% 
+    select(-statistic, -std.error)
   
   forest_calibration
 }
