@@ -19,7 +19,7 @@ for (overall_seed in overall_seeds){
   library(BART)
   
   
-  n_splitsample_iterations <- 25#125
+  n_splitsample_iterations <- 125
   splitsample_fraction <- 0.5
   to_cluster <- F
   drop_duplicates <- T
@@ -124,7 +124,7 @@ for (overall_seed in overall_seeds){
     # see if outcome is continuous
     if (length(unique(Y))==2){
       # discrete: use logit bart (lbart; or probit bart pbart)
-      bart_fit <- mc.gbart(as.matrix(X_bart), Y, mc.cores = 2, nice=5, type='lbart')
+      bart_fit <- mc.gbart(as.matrix(X_bart), Y, mc.cores = 2, nice=5, type='pbart')
       
       Y.hat_splitsample <- predict(bart_fit, as.matrix(X_bart_splitsample), mc.cores = 2, nice=5)
       Y.hat_splitsample <- Y.hat_splitsample$yhat.test %>% colMeans()
@@ -140,15 +140,15 @@ for (overall_seed in overall_seeds){
       
       
     } else {
-      # contiuous
-      bart_fit <- mc.gbart(as.matrix(X_bart), Y, mc.cores = 4, nice=2)
-      Y.hat_splitsample <- predict(bart_fit, as.matrix(X_bart_splitsample), mc.cores = 2, nice=2) %>% colMeans()
+      # continuous
+      bart_fit <- mc.gbart(as.matrix(X_bart), Y, mc.cores = 2, nice=2)
+      Y.hat_splitsample <- predict(bart_fit, as.matrix(X_bart_splitsample), mc.cores = 2, nice=5) %>% colMeans()
       
       X_bart_YO_splitsample <- X_bart_splitsample %>% mutate(W=0)
       X_bart_Y1_splitsample <- X_bart_splitsample %>% mutate(W=1)
       
-      bart_preds_Y0 <- predict(bart_fit, as.matrix(X_bart_YO_splitsample), mc.cores=2, nice=2) %>% colMeans()
-      bart_preds_Y1 <- predict(bart_fit, as.matrix(X_bart_Y1_splitsample), mc.cores=4, nice=2) %>% colMeans()
+      bart_preds_Y0 <- predict(bart_fit, as.matrix(X_bart_YO_splitsample), mc.cores=2, nice=5) %>% colMeans()
+      bart_preds_Y1 <- predict(bart_fit, as.matrix(X_bart_Y1_splitsample), mc.cores=2, nice=5) %>% colMeans()
       
     }
     
@@ -282,8 +282,9 @@ for (overall_seed in overall_seeds){
       'calibration_tests_naive_linear' = calibration_tests_naive[[2]],
       #'n_observations' = n.obs,
       #'tuning_output' = tau.forest$tuning.output,
-      'quartile_heterogeneity_table' = quartile_heterogeneity_table,
-      'tau_df_splitsample' = tau_df_splitsample)
+      'quartile_heterogeneity_table' = quartile_heterogeneity_table#,
+      #'tau_df_splitsample' = tau_df_splitsample
+      )
     
     return(output_list)  
   }
@@ -303,12 +304,15 @@ for (overall_seed in overall_seeds){
       current_outcome <- outcomes[i]
       current_outcome_label <- outcome_labels[i]
       cat(":: Running: ", current_outcome, "~ \n")
-
-        single_forest_output <- suppressMessages(make_single_bart(dataset = input_dataset,
-                                                          controls = input_controls,
-                                                          outcome = current_outcome,
-                                                          outcome_label = current_outcome_label,
-                                                          splitsample_df = splitsample_df))
+      
+      
+      single_forest_output <- try(suppressMessages(make_single_bart(dataset = input_dataset,
+                                                                    controls = input_controls,
+                                                                    outcome = current_outcome,
+                                                                    outcome_label = current_outcome_label,
+                                                                    splitsample_df = splitsample_df)))
+      
+      if(inherits(single_forest_output, 'try-error')) next
       
       final_forest_list[[current_outcome_label]] <- single_forest_output
       
@@ -380,18 +384,18 @@ for (overall_seed in overall_seeds){
                                                          flipped_outcomes)
     
     
-    # do tau comparisons here
-    cross_pte_comparisons <- list("bart_model" = bart_model %>% make_cross_pte_comparison_table())
-    
+    # # do tau comparisons here
+    # cross_pte_comparisons <- list("bart_model" = bart_model %>% make_cross_pte_comparison_table())
+    # 
     
     # drop tau df's from lists before saving
-    for (outcome in outcomes_of_interest_labels){
-      bart_model[[outcome]]$tau_df_splitsample <- NULL
-    }
+    # for (outcome in outcomes_of_interest_labels){
+    #   bart_model[[outcome]]$tau_df_splitsample <- NULL
+    # }
     
     
-    models <- list('bart_model' = bart_model,
-                   'extra_analyses' = list(cross_pte_comparisons))
+    models <- list('bart_model' = bart_model)#,
+                   #'extra_analyses' = list(cross_pte_comparisons))
     
     return(models)
   }
@@ -403,7 +407,12 @@ for (overall_seed in overall_seeds){
   start_time <- Sys.time()
   # setting up furr plan
   plan(multisession, workers = 13)
-  all_splitsample_models <- future_map(seeds, run_splitsample_models, .options = future_options(scheduling=Inf))
+  all_splitsample_models <- future_map(seeds,
+                                       #safely(
+                                         run_splitsample_models,
+                                         #     otherwise = NA),
+                                       .options = future_options(scheduling=Inf),
+                                       .progress = T)
   
   end_time <- Sys.time()
   
