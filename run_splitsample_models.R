@@ -322,7 +322,7 @@ for (overall_seed in overall_seeds){
     # subsample_difference_table <- subsample_tau_avgs %>% make_subsample_difference_table()
     
     # calibration test (Jon D) output (no plot)
-    calibration_tests_naive <- make_naive_calibration_tests(tau_df, outcome)
+    calibration_tests_naive <- make_naive_calibration_tests(tau_df_splitsample, outcome)
     
     output_list <- list(
       # 'tau_df' = tau_df,
@@ -674,7 +674,7 @@ for (overall_seed in overall_seeds){
     
     
     # calibration test (Jon D) output (no plot)
-    calibration_tests_naive <- make_naive_calibration_tests(tau_df, outcome)
+    calibration_tests_naive <- make_naive_calibration_tests(tau_df_splitsample, outcome)
     
     output_list <- list(
       # 'tau_df' = tau_df,

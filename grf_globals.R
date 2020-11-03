@@ -59,7 +59,7 @@ outcomes_of_interest <- c('mathxil_z_post1_np',
                           "readxil_z_post1_np",
                           "graduated_ontime",
                           "graduated_ever",
-                          'treat_post2',
+                          #'treat_post2',
                           "gpa11_math",
                           "eleventh_grade_math_z"
 )
@@ -75,7 +75,7 @@ outcomes_of_interest_labels <- c('Math test score (Z)',
                                  "Reading test score (Z)",
                                  "Graduated on-time",
                                  "Graduated ever",
-                                 'Participated in Study 1 Year 2',
+                                 #'Participated in Study 1 Year 2',
                                  "11th Grade Math GPA",
                                  "11th Grade Math Test Score (Z)")
 
