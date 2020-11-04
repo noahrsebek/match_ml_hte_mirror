@@ -428,57 +428,50 @@ for (overall_seed in overall_seeds){
 # combine models ----
 
 
-models1 <- readRDS('all_splitsample_models1.Rds')
-models2 <- readRDS('all_splitsample_models2.Rds')
-models3 <- readRDS('all_splitsample_models3.Rds')
+bart_rds_files <- list.files()[stringr::str_detect(list.files(), 'all_splitsample_bart')]
 
 
-all_splitsample_models <- append(models1, models2) %>% append(models3)
+all_bart_splitsamples <- NULL
 
-
-
-combined_models <- all_splitsample_models[[1]]
-n_models <- length(combined_models)
-
-
-for (i in 1:length(all_splitsample_models)){
-  # for each splitsample...
-  current_splitsample_iteration <- all_splitsample_models[[i]]
-  
-  # go through each model and append each dataframe to all the other ones
-  for (m in 1:n_models){
-    # get mth model
-    current_model <- current_splitsample_iteration[[m]]
-    n_outcomes <- length(current_model)
-    # for each outcome...
-    for (j in 1:n_outcomes){
-      # get each dataframe
-      n_tables <- length(current_model[[j]])
-      
-      for (k in 1:n_tables){
-        # rbind the kth table to the same table in the combined model
-        combined_models[[m]][[j]][[k]] <- bind_rows(combined_models[[m]][[j]][[k]],
-                                                    current_model[[j]][[k]])
-      }
-    }
-  }
+for (bartfile in bart_rds_files){
+  temp_bartfile <- readRDS(bartfile)
+  all_bart_splitsamples <- all_bart_splitsamples %>% append(temp_bartfile)
 }
 
 
-# now combine all these tables and keep the medians + sd's
-for (m in 1:n_models){
-  n_outcomes <- length(combined_models[[m]])
+# initiate with the first iteration, and then loop through 2:all bart models
+combined_models <- all_bart_splitsamples[[1]]$bart_model
+
+for (i in 2:length(all_bart_splitsamples)){
+  current_splitsample_iteration <- all_bart_splitsamples[[i]]$bart_model
+  n_outcomes <- length(current_splitsample_iteration)
+  
+  # for each outcome...
   for (j in 1:n_outcomes){
-    n_tables <- length(combined_models[[m]][[j]])
+    # get each dataframe
+    n_tables <- length(current_splitsample_iteration[[j]])
+    
     for (k in 1:n_tables){
-      combined_models[[m]][[j]][[k]] <-
-        combined_models[[m]][[j]][[k]] %>%
+      # rbind the kth table to the same table in the combined model
+      combined_models[[j]][[k]] <- bind_rows(combined_models[[j]][[k]],
+                                                  current_splitsample_iteration[[j]][[k]])
+    }
+  }
+  
+}
+
+
+
+# now combine all these tables and keep the medians + sd's
+  for (j in 1:n_outcomes){
+    for (k in 1:n_tables){
+      combined_models[[j]][[k]] <-
+        combined_models[[j]][[k]] %>%
         group_by_at(1) %>%
         summarise_all(list(median = median,
                            sd = sd)) %>%
         ungroup()
     }
   }
-}
 
-saveRDS(combined_models, "combined_models.Rds")
+saveRDS(combined_models, "combined_bart_splitsample_models.Rds")
