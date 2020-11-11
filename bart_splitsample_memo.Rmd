@@ -90,10 +90,15 @@ for (outcome in names(all_bart_models)){
   i = 0
   for (item in current_model){
     i = i+1
+    # if there's a splitsample pvalue, add adjusted pvalue column
     current_name <- model_item_names[i] %>% stringr::str_replace_all("_", " ")
-  
+    if (names(item) %>%  stringr::str_detect('p.value_') %>% max == 1){
+      item <- item %>% mutate(adj.pval = 2*p.value_median)
+    }
+    
+    
       item %>%
-      kable(booktabs=T, digits=3, escape=T,
+      kable(booktabs=T, digits=3, escape=T, linesep="",
             caption = paste0(current_name, " - ", outcome)) %>%
       kable_styling(latex_options = c(#'striped',
       'HOLD_position')) %>% print()

@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.19 (TeX Live 2018) (preloaded format=pdflatex 2018.9.11)  4 NOV 2020 14:36
+This is pdfTeX, Version 3.14159265-2.6-1.40.19 (TeX Live 2018) (preloaded format=pdflatex 2018.9.11)  6 NOV 2020 12:45
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -925,22 +925,12 @@ LaTeX Font Info:    External font `lmex10' loaded for size
 LaTeX Font Info:    External font `lmex10' loaded for size
 (Font)              <5> on input line 125.
 
-Overfull \hbox (406.74518pt too wide) in paragraph at lines 144--152
+Overfull \hbox (29.69063pt too wide) in paragraph at lines 143--152
  [][] 
  []
 
 
-Overfull \hbox (49.58176pt too wide) in paragraph at lines 156--166
- [][] 
- []
-
-
-Overfull \hbox (47.58125pt too wide) in paragraph at lines 170--177
- [][] 
- []
-
-
-Overfull \hbox (851.55653pt too wide) in paragraph at lines 181--226
+Overfull \hbox (2.41325pt too wide) in paragraph at lines 156--166
  [][] 
  []
 
@@ -949,48 +939,38 @@ as been already used, duplicate ignored
 
 \AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
                                                   \fi \fi 
-l.227 
+l.221 
       pdfTeX warning (ext4): destination with the same identifier (name{table.2
 }) has been already used, duplicate ignored
 
 \AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
                                                   \fi \fi 
-l.227 
+l.221 
       pdfTeX warning (ext4): destination with the same identifier (name{table.3
 }) has been already used, duplicate ignored
 
 \AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
                                                   \fi \fi 
-l.227 
+l.221 
       pdfTeX warning (ext4): destination with the same identifier (name{table.4
 }) has been already used, duplicate ignored
 
 \AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
                                                   \fi \fi 
-l.227 
+l.221 
       ] [3pdfTeX warning (ext4): destination with the same identifier (name{tab
 le.5}) has been already used, duplicate ignored
 
 \AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
                                                   \fi \fi 
-l.228 \newpage
+l.222 \newpage
               ]
-Overfull \hbox (406.74518pt too wide) in paragraph at lines 255--263
+Overfull \hbox (29.69063pt too wide) in paragraph at lines 248--257
  [][] 
  []
 
 
-Overfull \hbox (49.58176pt too wide) in paragraph at lines 267--277
- [][] 
- []
-
-
-Overfull \hbox (47.58125pt too wide) in paragraph at lines 281--288
- [][] 
- []
-
-
-Overfull \hbox (851.55653pt too wide) in paragraph at lines 292--337
+Overfull \hbox (2.41325pt too wide) in paragraph at lines 261--271
  [][] 
  []
 
@@ -999,48 +979,38 @@ as been already used, duplicate ignored
 
 \AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
                                                   \fi \fi 
-l.338 
+l.326 
       pdfTeX warning (ext4): destination with the same identifier (name{table.7
 }) has been already used, duplicate ignored
 
 \AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
                                                   \fi \fi 
-l.338 
+l.326 
       pdfTeX warning (ext4): destination with the same identifier (name{table.8
 }) has been already used, duplicate ignored
 
 \AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
                                                   \fi \fi 
-l.338 
+l.326 
       pdfTeX warning (ext4): destination with the same identifier (name{table.9
 }) has been already used, duplicate ignored
 
 \AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
                                                   \fi \fi 
-l.338 
+l.326 
       ] [5pdfTeX warning (ext4): destination with the same identifier (name{tab
 le.10}) has been already used, duplicate ignored
 
 \AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
                                                   \fi \fi 
-l.339 \newpage
+l.327 \newpage
               ]
-Overfull \hbox (406.74518pt too wide) in paragraph at lines 367--375
+Overfull \hbox (29.69063pt too wide) in paragraph at lines 354--363
  [][] 
  []
 
 
-Overfull \hbox (49.58176pt too wide) in paragraph at lines 379--389
- [][] 
- []
-
-
-Overfull \hbox (47.58125pt too wide) in paragraph at lines 393--400
- [][] 
- []
-
-
-Overfull \hbox (851.55653pt too wide) in paragraph at lines 404--449
+Overfull \hbox (2.41325pt too wide) in paragraph at lines 367--377
  [][] 
  []
 
@@ -1049,48 +1019,38 @@ has been already used, duplicate ignored
 
 \AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
                                                   \fi \fi 
-l.450 
+l.432 
       pdfTeX warning (ext4): destination with the same identifier (name{table.1
 2}) has been already used, duplicate ignored
 
 \AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
                                                   \fi \fi 
-l.450 
+l.432 
       pdfTeX warning (ext4): destination with the same identifier (name{table.1
 3}) has been already used, duplicate ignored
 
 \AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
                                                   \fi \fi 
-l.450 
+l.432 
       pdfTeX warning (ext4): destination with the same identifier (name{table.1
 4}) has been already used, duplicate ignored
 
 \AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
                                                   \fi \fi 
-l.450 
+l.432 
       ] [7pdfTeX warning (ext4): destination with the same identifier (name{tab
 le.15}) has been already used, duplicate ignored
 
 \AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
                                                   \fi \fi 
-l.451 \newpage
+l.433 \newpage
               ]
-Overfull \hbox (406.74518pt too wide) in paragraph at lines 478--486
+Overfull \hbox (29.69063pt too wide) in paragraph at lines 459--468
  [][] 
  []
 
 
-Overfull \hbox (49.58176pt too wide) in paragraph at lines 490--500
- [][] 
- []
-
-
-Overfull \hbox (47.58125pt too wide) in paragraph at lines 504--511
- [][] 
- []
-
-
-Overfull \hbox (851.55653pt too wide) in paragraph at lines 515--560
+Overfull \hbox (2.41325pt too wide) in paragraph at lines 472--482
  [][] 
  []
 
@@ -1099,48 +1059,38 @@ has been already used, duplicate ignored
 
 \AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
                                                   \fi \fi 
-l.561 
+l.537 
       pdfTeX warning (ext4): destination with the same identifier (name{table.1
 7}) has been already used, duplicate ignored
 
 \AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
                                                   \fi \fi 
-l.561 
+l.537 
       pdfTeX warning (ext4): destination with the same identifier (name{table.1
 8}) has been already used, duplicate ignored
 
 \AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
                                                   \fi \fi 
-l.561 
+l.537 
       pdfTeX warning (ext4): destination with the same identifier (name{table.1
 9}) has been already used, duplicate ignored
 
 \AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
                                                   \fi \fi 
-l.561 
+l.537 
       ] [9pdfTeX warning (ext4): destination with the same identifier (name{tab
 le.20}) has been already used, duplicate ignored
 
 \AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
                                                   \fi \fi 
-l.562 \newpage
+l.538 \newpage
               ]
-Overfull \hbox (406.74518pt too wide) in paragraph at lines 590--598
+Overfull \hbox (29.69063pt too wide) in paragraph at lines 565--574
  [][] 
  []
 
 
-Overfull \hbox (49.58176pt too wide) in paragraph at lines 602--612
- [][] 
- []
-
-
-Overfull \hbox (47.58125pt too wide) in paragraph at lines 616--623
- [][] 
- []
-
-
-Overfull \hbox (851.55653pt too wide) in paragraph at lines 627--672
+Overfull \hbox (2.41325pt too wide) in paragraph at lines 578--588
  [][] 
  []
 
@@ -1149,48 +1099,38 @@ Overfull \hbox (851.55653pt too wide) in paragraph at lines 627--672
 
 \AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
                                                   \fi \fi 
-l.673 
+l.643 
       pdfTeX warning (ext4): destination with the same identifier (name{table.2
 2}) has been already used, duplicate ignored
 
 \AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
                                                   \fi \fi 
-l.673 
+l.643 
       pdfTeX warning (ext4): destination with the same identifier (name{table.2
 3}) has been already used, duplicate ignored
 
 \AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
                                                   \fi \fi 
-l.673 
+l.643 
       pdfTeX warning (ext4): destination with the same identifier (name{table.2
 4}) has been already used, duplicate ignored
 
 \AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
                                                   \fi \fi 
-l.673 
+l.643 
       ] [11pdfTeX warning (ext4): destination with the same identifier (name{ta
 ble.25}) has been already used, duplicate ignored
 
 \AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
                                                   \fi \fi 
-l.674 \newpage
+l.644 \newpage
               ]
-Overfull \hbox (406.74518pt too wide) in paragraph at lines 701--709
+Overfull \hbox (29.69063pt too wide) in paragraph at lines 670--679
  [][] 
  []
 
 
-Overfull \hbox (49.58176pt too wide) in paragraph at lines 713--723
- [][] 
- []
-
-
-Overfull \hbox (47.58125pt too wide) in paragraph at lines 727--734
- [][] 
- []
-
-
-Overfull \hbox (851.55653pt too wide) in paragraph at lines 738--783
+Overfull \hbox (2.41325pt too wide) in paragraph at lines 683--693
  [][] 
  []
 
@@ -1199,48 +1139,38 @@ Overfull \hbox (851.55653pt too wide) in paragraph at lines 738--783
 
 \AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
                                                   \fi \fi 
-l.784 
+l.748 
       pdfTeX warning (ext4): destination with the same identifier (name{table.2
 7}) has been already used, duplicate ignored
 
 \AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
                                                   \fi \fi 
-l.784 
+l.748 
       pdfTeX warning (ext4): destination with the same identifier (name{table.2
 8}) has been already used, duplicate ignored
 
 \AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
                                                   \fi \fi 
-l.784 
+l.748 
       pdfTeX warning (ext4): destination with the same identifier (name{table.2
 9}) has been already used, duplicate ignored
 
 \AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
                                                   \fi \fi 
-l.784 
+l.748 
       ] [13pdfTeX warning (ext4): destination with the same identifier (name{ta
 ble.30}) has been already used, duplicate ignored
 
 \AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
                                                   \fi \fi 
-l.785 \newpage
+l.749 \newpage
               ]
-Overfull \hbox (406.74518pt too wide) in paragraph at lines 812--820
+Overfull \hbox (29.69063pt too wide) in paragraph at lines 775--784
  [][] 
  []
 
 
-Overfull \hbox (49.58176pt too wide) in paragraph at lines 824--834
- [][] 
- []
-
-
-Overfull \hbox (47.58125pt too wide) in paragraph at lines 838--845
- [][] 
- []
-
-
-Overfull \hbox (851.55653pt too wide) in paragraph at lines 849--894
+Overfull \hbox (2.41325pt too wide) in paragraph at lines 788--798
  [][] 
  []
 
@@ -1249,48 +1179,38 @@ Overfull \hbox (851.55653pt too wide) in paragraph at lines 849--894
 
 \AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
                                                   \fi \fi 
-l.895 
+l.853 
       pdfTeX warning (ext4): destination with the same identifier (name{table.3
 2}) has been already used, duplicate ignored
 
 \AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
                                                   \fi \fi 
-l.895 
+l.853 
       pdfTeX warning (ext4): destination with the same identifier (name{table.3
 3}) has been already used, duplicate ignored
 
 \AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
                                                   \fi \fi 
-l.895 
+l.853 
       pdfTeX warning (ext4): destination with the same identifier (name{table.3
 4}) has been already used, duplicate ignored
 
 \AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
                                                   \fi \fi 
-l.895 
+l.853 
       ] [15pdfTeX warning (ext4): destination with the same identifier (name{ta
 ble.35}) has been already used, duplicate ignored
 
 \AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
                                                   \fi \fi 
-l.896 \newpage
+l.854 \newpage
               ]
-Overfull \hbox (406.74518pt too wide) in paragraph at lines 924--932
+Overfull \hbox (29.69063pt too wide) in paragraph at lines 881--890
  [][] 
  []
 
 
-Overfull \hbox (49.58176pt too wide) in paragraph at lines 936--946
- [][] 
- []
-
-
-Overfull \hbox (47.58125pt too wide) in paragraph at lines 950--957
- [][] 
- []
-
-
-Overfull \hbox (851.55653pt too wide) in paragraph at lines 961--1006
+Overfull \hbox (2.41325pt too wide) in paragraph at lines 894--904
  [][] 
  []
 
@@ -1299,48 +1219,38 @@ Overfull \hbox (851.55653pt too wide) in paragraph at lines 961--1006
 
 \AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
                                                   \fi \fi 
-l.1007 
-       pdfTeX warning (ext4): destination with the same identifier (name{table.
-37}) has been already used, duplicate ignored
+l.959 
+      pdfTeX warning (ext4): destination with the same identifier (name{table.3
+7}) has been already used, duplicate ignored
 
 \AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
                                                   \fi \fi 
-l.1007 
-       pdfTeX warning (ext4): destination with the same identifier (name{table.
-38}) has been already used, duplicate ignored
+l.959 
+      pdfTeX warning (ext4): destination with the same identifier (name{table.3
+8}) has been already used, duplicate ignored
 
 \AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
                                                   \fi \fi 
-l.1007 
-       pdfTeX warning (ext4): destination with the same identifier (name{table.
-39}) has been already used, duplicate ignored
+l.959 
+      pdfTeX warning (ext4): destination with the same identifier (name{table.3
+9}) has been already used, duplicate ignored
 
 \AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
                                                   \fi \fi 
-l.1007 
-       ] [17pdfTeX warning (ext4): destination with the same identifier (name{t
-able.40}) has been already used, duplicate ignored
+l.959 
+      ] [17pdfTeX warning (ext4): destination with the same identifier (name{ta
+ble.40}) has been already used, duplicate ignored
 
 \AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
                                                   \fi \fi 
-l.1008 \newpage
-               ]
-Overfull \hbox (406.74518pt too wide) in paragraph at lines 1036--1044
+l.960 \newpage
+              ]
+Overfull \hbox (29.69063pt too wide) in paragraph at lines 987--996
  [][] 
  []
 
 
-Overfull \hbox (49.58176pt too wide) in paragraph at lines 1048--1058
- [][] 
- []
-
-
-Overfull \hbox (47.58125pt too wide) in paragraph at lines 1062--1069
- [][] 
- []
-
-
-Overfull \hbox (851.55653pt too wide) in paragraph at lines 1073--1118
+Overfull \hbox (2.41325pt too wide) in paragraph at lines 1000--1010
  [][] 
  []
 
@@ -1349,60 +1259,60 @@ Overfull \hbox (851.55653pt too wide) in paragraph at lines 1073--1118
 
 \AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
                                                   \fi \fi 
-l.1119 
+l.1065 
        pdfTeX warning (ext4): destination with the same identifier (name{table.
 42}) has been already used, duplicate ignored
 
 \AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
                                                   \fi \fi 
-l.1119 
+l.1065 
        pdfTeX warning (ext4): destination with the same identifier (name{table.
 43}) has been already used, duplicate ignored
 
 \AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
                                                   \fi \fi 
-l.1119 
+l.1065 
        pdfTeX warning (ext4): destination with the same identifier (name{table.
 44}) has been already used, duplicate ignored
 
 \AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
                                                   \fi \fi 
-l.1119 
+l.1065 
        ] [19pdfTeX warning (ext4): destination with the same identifier (name{t
 able.45}) has been already used, duplicate ignored
 
 \AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
                                                   \fi \fi 
-l.1120 \newpage
+l.1066 \newpage
                ]
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 1122.
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 1122.
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 1068.
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 1068.
 (./bart_splitsample_memo.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 1122.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 1122.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 1068.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 1068.
 
 Package rerunfilecheck Info: File `bart_splitsample_memo.out' has not changed.
 (rerunfilecheck)             Checksum: F83E913F725B19A4A236914209D3197A;1509.
 
 LaTeX Warning: There were multiply-defined labels.
 
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 1122.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 1068.
  ) 
 Here is how much of TeX's memory you used:
  13570 strings out of 492641
  198252 string characters out of 6128839
- 328115 words of memory out of 5000000
+ 320115 words of memory out of 5000000
  17140 multiletter control sequences out of 15000+600000
  45584 words of font info for 67 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 34i,9n,38p,584b,341s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 34i,9n,38p,320b,341s stack positions out of 5000i,500n,10000p,200000b,80000s
 {/export/opt/texlive/2018/texmf-dist/fonts/enc/dvips/lm/lm-ec.enc}{/export/op
 t/texlive/2018/texmf-dist/fonts/enc/dvips/lm/lm-ts1.enc}</export/opt/texlive/20
 18/texmf-dist/fonts/type1/public/lm/lmbx12.pfb></export/opt/texlive/2018/texmf-
 dist/fonts/type1/public/lm/lmr10.pfb></export/opt/texlive/2018/texmf-dist/fonts
 /type1/public/lm/lmr17.pfb></export/opt/texlive/2018/texmf-dist/fonts/type1/pub
 lic/lm/lmtt10.pfb>
-Output written on bart_splitsample_memo.pdf (19 pages, 138733 bytes).
+Output written on bart_splitsample_memo.pdf (19 pages, 133776 bytes).
 PDF statistics:
  204 PDF objects out of 1000 (max. 8388607)
  177 compressed objects within 2 object streams

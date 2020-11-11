@@ -129,14 +129,14 @@ for (overall_seed in overall_seeds){
       Y.hat_splitsample <- predict(bart_fit, as.matrix(X_bart_splitsample), mc.cores = 2, nice=5)
       Y.hat_splitsample <- Y.hat_splitsample$yhat.test %>% colMeans()
       
-      X_bart_YO_splitsample <- X_bart_splitsample %>% mutate(W=0)
+      X_bart_Y0_splitsample <- X_bart_splitsample %>% mutate(W=0)
       X_bart_Y1_splitsample <- X_bart_splitsample %>% mutate(W=1)
       
-      bart_preds_Y0 <- predict(bart_fit, as.matrix(X_bart_YO_splitsample), mc.cores=2, nice=5)
-      bart_preds_Y1 <- predict(bart_fit, as.matrix(X_bart_Y1_splitsample), mc.cores=2, nice=5)
+      bart_preds_Y0_split <- predict(bart_fit, as.matrix(X_bart_Y0_splitsample), mc.cores=2, nice=5)
+      bart_preds_Y1_split <- predict(bart_fit, as.matrix(X_bart_Y1_splitsample), mc.cores=2, nice=5)
       
-      bart_preds_Y0 <- bart_preds_Y0$yhat.test %>% colMeans()
-      bart_preds_Y1 <- bart_preds_Y1$yhat.test %>% colMeans()
+      bart_preds_Y0_split <- bart_preds_Y0_split$yhat.test %>% colMeans()
+      bart_preds_Y1_split <- bart_preds_Y1_split$yhat.test %>% colMeans()
       
       
     } else {
@@ -144,38 +144,62 @@ for (overall_seed in overall_seeds){
       bart_fit <- mc.gbart(as.matrix(X_bart), Y, mc.cores = 2, nice=2)
       Y.hat_splitsample <- predict(bart_fit, as.matrix(X_bart_splitsample), mc.cores = 2, nice=5) %>% colMeans()
       
-      X_bart_YO_splitsample <- X_bart_splitsample %>% mutate(W=0)
+      
+      # X_bart_Y0 <- X_bart %>% mutate(W=0)
+      # X_bart_Y1 <- X_bart %>% mutate(W=1)
+      # 
+      # bart_preds_Y0 <- predict(bart_fit, as.matrix(X_bart_Y0), mc.cores=2, nice=5) %>% colMeans()
+      # bart_preds_Y1 <- predict(bart_fit, as.matrix(X_bart_Y1), mc.cores=2, nice=5) %>% colMeans()
+      # predictions <- bart_preds_Y1 - bart_preds_Y0
+      
+      
+      X_bart_Y0_splitsample <- X_bart_splitsample %>% mutate(W=0)
       X_bart_Y1_splitsample <- X_bart_splitsample %>% mutate(W=1)
       
-      bart_preds_Y0 <- predict(bart_fit, as.matrix(X_bart_YO_splitsample), mc.cores=2, nice=5) %>% colMeans()
-      bart_preds_Y1 <- predict(bart_fit, as.matrix(X_bart_Y1_splitsample), mc.cores=2, nice=5) %>% colMeans()
+      bart_preds_Y0_split <- predict(bart_fit, as.matrix(X_bart_Y0_splitsample), mc.cores=2, nice=5) %>% colMeans()
+      bart_preds_Y1_split <- predict(bart_fit, as.matrix(X_bart_Y1_splitsample), mc.cores=2, nice=5) %>% colMeans()
       
     }
     
-    predictions_oob_splitsample <- bart_preds_Y1 - bart_preds_Y0
+    predictions_oob_splitsample <- bart_preds_Y1_split - bart_preds_Y0_split
     
     
     
     
     
     # get forest-wide avg tau's/tx effects (and the standard errpr)
-    avg_tx_effect_overall <- avg_effect(Y = Y_splitsample, Y.hat = Y.hat_splitsample, W = W_splitsample, W.hat = W.hat_splitsample,
-                                        weights = sample_weights_splitsample, predictions = predictions_oob_splitsample,
-                                        subset = NULL)
+    # avg_tx_effect_overall <- avg_effect(Y = Y_splitsample, Y.hat = Y.hat_splitsample, W = W_splitsample, W.hat = W.hat_splitsample,
+    #                                     weights = sample_weights_splitsample, predictions = predictions_oob_splitsample,
+    #                                     subset = NULL)
+    avg_tx_effect_overall <- c('estimate'=mean(predictions_oob_splitsample))
     
     
     # test calibration of forest
-    W.hat_splitsample <- W.hat_splitsample
+    #W.hat_splitsample <- W.hat_splitsample
     
     mean.pred <- weighted.mean(predictions_oob_splitsample, sample_weights_splitsample)
-    DF <- data.frame(target = unname(Y_splitsample - Y.hat_splitsample), 
+    # DF <- data.frame(target = unname(Y_splitsample - Y.hat_splitsample), 
+    #                  mean.forest.prediction = unname(W_splitsample - W.hat_splitsample) * mean.pred,
+    #                  differential.forest.prediction = unname(W_splitsample - W.hat_splitsample) * (predictions_oob_splitsample - mean.pred))
+    
+    
+    DF <- data.frame(target = unname(Y_splitsample),
+                     Yhat = Y.hat_splitsample,
                      mean.forest.prediction = unname(W_splitsample - W.hat_splitsample) * mean.pred,
                      differential.forest.prediction = unname(W_splitsample - W.hat_splitsample) * (predictions_oob_splitsample - mean.pred))
     
+    
+    
     # changed "observation.weight" to "sample_weights"
-    best.linear.predictor <- lm(target ~ mean.forest.prediction + 
+    # best.linear.predictor <- lm(target ~ mean.forest.prediction + 
+    #                               differential.forest.prediction + 0, weights = sample_weights_splitsample, 
+    #                             data = DF)
+    # 
+    best.linear.predictor <- lm(target ~ Yhat + mean.forest.prediction + 
                                   differential.forest.prediction + 0, weights = sample_weights_splitsample, 
                                 data = DF)
+    
+    
     # blp.summary <- lmtest::coeftest(best.linear.predictor, vcov = sandwich::vcovCL, 
     #                                 type = "HC3", cluster = clusters)
     # changed this because we are not clustering (can change type of HC errors )
@@ -190,9 +214,10 @@ for (overall_seed in overall_seeds){
     blp.summary[, 4] <- ifelse(blp.summary[, 3] < 0, 1 - blp.summary[, 
                                                                      4]/2, blp.summary[, 4]/2)
     forest_calibration <- blp.summary %>%
-      broom::tidy() %>% select(-statistic) %>% 
+      broom::tidy() %>%  
       mutate(lower_CI = estimate - 2.24*std.error,
-             upper_CI = estimate + 2.24*std.error)
+             upper_CI = estimate + 2.24*std.error) %>% 
+      select(-std.error, -statistic)
     
     #forest_calibration <- test_calibration(tau.forest) %>% broom::tidy()
     
@@ -209,34 +234,27 @@ for (overall_seed in overall_seeds){
     
     
     
-    ate.highest_25 <- avg_effect(Y = Y_splitsample, Y.hat = Y.hat_splitsample, W = W_splitsample, W.hat = W.hat_splitsample,
-                                 weights = sample_weights_splitsample, predictions = predictions_oob_splitsample,
-                                 subset = tau_df_splitsample$tau_quartile == 4)
+    ate.highest_25 <- avg_effect_simple(predictions = predictions_oob_splitsample,
+                                        subset = tau_df_splitsample$tau_quartile == 4)
     
-    ate.bottom_25 <- avg_effect(Y = Y_splitsample, Y.hat = Y.hat_splitsample, W = W_splitsample, W.hat = W.hat_splitsample,
-                                weights = sample_weights_splitsample, predictions = predictions_oob_splitsample,
-                                subset = tau_df_splitsample$tau_quartile == 1)
+    ate.bottom_25 <- avg_effect_simple(predictions = predictions_oob_splitsample,
+                                       subset = tau_df_splitsample$tau_quartile == 1)
     
-    ate.quartile_2 <- avg_effect(Y = Y_splitsample, Y.hat = Y.hat_splitsample, W = W_splitsample, W.hat = W.hat_splitsample,
-                                 weights = sample_weights_splitsample, predictions = predictions_oob_splitsample,
-                                 subset = tau_df_splitsample$tau_quartile == 2)
+    ate.quartile_2 <- avg_effect_simple(predictions = predictions_oob_splitsample,
+                                        subset = tau_df_splitsample$tau_quartile == 2)
     
-    ate.quartile_3 <- avg_effect(Y = Y_splitsample, Y.hat = Y.hat_splitsample, W = W_splitsample, W.hat = W.hat_splitsample,
-                                 weights = sample_weights_splitsample, predictions = predictions_oob_splitsample,
-                                 subset = tau_df_splitsample$tau_quartile == 3)
+    ate.quartile_3 <- avg_effect_simple(predictions = predictions_oob_splitsample,
+                                        subset = tau_df_splitsample$tau_quartile == 3)
     
-    ate.bottom_75 <- avg_effect(Y = Y_splitsample, Y.hat = Y.hat_splitsample, W = W_splitsample, W.hat = W.hat_splitsample,
-                                weights = sample_weights_splitsample, predictions = predictions_oob_splitsample,
-                                subset = tau_df_splitsample$tau_quartile != 4)
+    ate.bottom_75 <- avg_effect_simple(predictions = predictions_oob_splitsample,
+                                       subset = tau_df_splitsample$tau_quartile != 4)
     
-    ate.high <- avg_effect(Y = Y_splitsample, Y.hat = Y.hat_splitsample, W = W_splitsample, W.hat = W.hat_splitsample,
-                           weights = sample_weights_splitsample, predictions = predictions_oob_splitsample,
-                           subset = tau_df_splitsample$tau_quartile %in% c(3,4))
+    ate.high <- avg_effect_simple(predictions = predictions_oob_splitsample,
+                                  subset = tau_df_splitsample$tau_quartile %in% c(3,4))
     
     
-    ate.low <- avg_effect(Y = Y_splitsample, Y.hat = Y.hat_splitsample, W = W_splitsample, W.hat = W.hat_splitsample,
-                          weights = sample_weights_splitsample, predictions = predictions_oob_splitsample,
-                          subset = tau_df_splitsample$tau_quartile %in% c(1,2))
+    ate.low <- avg_effect_simple(predictions = predictions_oob_splitsample,
+                                 subset = tau_df_splitsample$tau_quartile %in% c(1,2))
     
     
     
@@ -257,6 +275,7 @@ for (overall_seed in overall_seeds){
     
     # quartile baseline table
     quartile_heterogeneity_table <- augmented_df %>% make_quartile_baseline_table(subsample_tau_avgs)
+    names(quartile_heterogeneity_table)[2:5] <- paste0("Q", 1:4)
     
     # subsample ate table
     subsample_ate_table <- subsample_tau_avgs %>% make_ate_summary_table(group_tau_avgs)
@@ -266,6 +285,16 @@ for (overall_seed in overall_seeds){
     
     # calibration test (Jon D) output (no plot)
     calibration_tests_naive <- make_naive_calibration_tests(tau_df_splitsample, outcome)
+    calibration_tests_naive[[1]] <- calibration_tests_naive[[1]] %>%
+      mutate(lower_CI = estimate - 2.24*std.error,
+             upper_CI = estimate + 2.24*std.error) %>% 
+      select(-std.error)
+    
+    calibration_tests_naive[[2]] <- calibration_tests_naive[[2]] %>%
+      mutate(lower_CI = estimate - 2.24*std.error,
+             upper_CI = estimate + 2.24*std.error) %>% 
+      select(-std.error)
+    
     
     output_list <- list(
       # 'tau_df' = tau_df,
@@ -468,8 +497,9 @@ for (i in 2:length(all_bart_splitsamples)){
       combined_models[[j]][[k]] <-
         combined_models[[j]][[k]] %>%
         group_by_at(1) %>%
-        summarise_all(list(median = median,
-                           sd = sd)) %>%
+        summarise_all(list(median = median#,
+                           #sd = sd
+                           )) %>%
         ungroup()
     }
   }

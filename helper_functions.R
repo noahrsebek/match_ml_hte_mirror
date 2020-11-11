@@ -103,6 +103,13 @@ make_quartile_baseline_table <- function(input_augmented_df,
 }
 
 
+avg_effect_simple <- function(predictions, subset){
+  # taking simple avg of tau's of a given subsample
+  est <- predictions[subset] %>% mean(na.rm=T)
+  return(c('estimate'=est))
+}
+
+
 avg_effect <- function(Y,Y.hat,W,W.hat, weights,predictions,subset) {
   
   if (is.null(subset)) {
