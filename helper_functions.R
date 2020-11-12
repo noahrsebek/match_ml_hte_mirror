@@ -15,6 +15,7 @@ makeDummies <- function(dataframe,
   }
   
   dataframe$tau_quartile <- qcut(dataframe$grf_tau_hat, 4) %>% as.numeric()
+  dataframe$tau_median_group <- qcut(dataframe$grf_tau_hat, 2) %>% as.numeric()
   
   if (flipped ==T){
     dataframe$tau_quartile <- abs(4 - dataframe$tau_quartile) + 1
@@ -78,8 +79,8 @@ make_quartile_baseline_table <- function(input_augmented_df,
     
     # get N in quartile and get avg tau hat 
     n_quart <- input_augmented_df %>% filter(tau_quartile %in% quartile) %>% nrow()
-    avg_tau_hat <- input_augmented_df %>% filter(tau_quartile %in% quartile) %>% pull(grf_tau_hat) %>% mean(na.rm=T)
-    #avg_tau_hat <- tau_avg_df %>% filter(tau_quartile %in% quartile) %>% pull(avg)
+    #avg_tau_hat <- input_augmented_df %>% filter(tau_quartile %in% quartile) %>% pull(grf_tau_hat) %>% mean(na.rm=T)
+    avg_tau_hat <- tau_avg_df %>% filter(tau_quartile %in% quartile) %>% pull(avg)
     
     # make column name
     col_name <- paste0("$\\hat{\\tau}$ Quartile ", quartile)
@@ -101,6 +102,47 @@ make_quartile_baseline_table <- function(input_augmented_df,
   
   return(quartile_baseline_table)
 }
+
+
+make_above_below_median_baseline_table <- function(input_augmented_df,
+                                                   subsample_tau_avgs,
+                                                   baselines = table_baselines,
+                                                   baselines_labels = table_baselines_labels){
+  quantile_baseline_table <- list()
+  
+  tau_avgs <- subsample_tau_avgs
+  tau_avg_df <- tribble(~tau_median_group, ~avg,
+                        2, tau_avgs$above_median[['estimate']],
+                        1, tau_avgs$below_median[['estimate']])
+  
+  for (quantile in 1:2){
+    
+    # get N in quantile and get avg tau hat 
+    n_quart <- input_augmented_df %>% filter(tau_median_group %in% quantile) %>% nrow()
+    #avg_tau_hat <- input_augmented_df %>% filter(tau_median_group %in% quantile) %>% pull(grf_tau_hat) %>% mean(na.rm=T)
+    avg_tau_hat <- tau_avg_df %>% filter(tau_median_group %in% quantile) %>% pull(avg)
+    
+    # make column name
+    col_name <- paste0("$\\hat{\\tau}$ quantile ", quantile)
+    temp_quart_column <- c(avg_tau_hat, n_quart)
+    
+    for (bl_var in baselines){
+      mean_val <- input_augmented_df %>% filter(tau_median_group %in% quantile) %>% pull(bl_var) %>% mean(na.rm=T)
+      temp_quart_column <- c(temp_quart_column, mean_val)
+    }
+    quantile_baseline_table[[col_name]] <- temp_quart_column
+  }
+  
+  quantile_baseline_table <- quantile_baseline_table %>% as_tibble()
+  quantile_baseline_table <- bind_cols(
+    tibble(Baseline = c("\\textit{Mean} $\\hat{\\tau}$",
+                        "\\textit{N}",
+                        baselines_labels)),
+    quantile_baseline_table)
+  
+  return(quantile_baseline_table)
+}
+
 
 
 avg_effect_simple <- function(predictions, subset){
@@ -429,11 +471,9 @@ make_calibration_plot <- function(tau_df, outcome_of_interest,
 }
 
 
-make_tau_rank_order_plot <- function(tau_df, n_observations, outcome_label){
+make_tau_rank_order_plot <- function(tau_df, outcome_label){
   
-    overall_n <- n_observations
-  
-  
+  overall_n <- nrow(tau_df)
   
   tau_rank_plot_df <- tau_df %>% arrange(grf_tau_hat) %>% mutate(order=1:n())
   
