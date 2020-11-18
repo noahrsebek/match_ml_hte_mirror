@@ -9,7 +9,7 @@ library('magrittr')
 library('ggplot2')
 library('furrr')
 library('purrr')
-
+library(forcats)
 
 default_n_trees <- 10000
 to_cluster <- F
@@ -137,7 +137,9 @@ make_single_causal_forest <- function(dataset,
                                                                    4]/2, blp.summary[, 4]/2)
   forest_calibration <- blp.summary %>%
     broom::tidy() %>% 
-    select(-statistic, -p.value) %>% filter(! term %in% 'Yhat')
+    mutate(lower_CI_full = estimate - 1.96*std.error,
+           upper_CI_full = estimate + 1.96*std.error) %>% 
+    select(-statistic, "In-sample P-val"=p.value) %>% filter(! term %in% 'Yhat')
   
   #forest_calibration <- test_calibration(tau.forest) %>% broom::tidy()
   
@@ -193,8 +195,10 @@ make_single_causal_forest <- function(dataset,
   
   
   # quartile baseline table
-  quartile_heterogeneity_table <- augmented_df %>% make_quartile_baseline_table(subsample_tau_avgs)
-  median_heterogeneity_table <- augmented_df %>% make_above_below_median_baseline_table(subsample_tau_avgs)
+  # quartile_heterogeneity_table <- augmented_df %>% make_quartile_baseline_table(subsample_tau_avgs)
+  # median_heterogeneity_table <- augmented_df %>% make_above_below_median_baseline_table(subsample_tau_avgs)
+  quartile_heterogeneity_table <- tau_df %>% make_quartile_summary_table()
+  median_heterogeneity_table <- tau_df %>% make_above_below_median_summary_table()
   
   # subsample ate table
   subsample_ate_table <- subsample_tau_avgs %>% make_ate_summary_table(group_tau_avgs)
@@ -207,15 +211,26 @@ make_single_causal_forest <- function(dataset,
   calibration_tests_naive[[2]] <- calibration_tests_naive[[2]] %>% 
     select(-p.value)
   
+  
+  # isr itt table by quartile
+  isr_itt_tables_quartile <- make_isr_itt_quantile_tables(tau_df, n_calibration_quantiles = 4)
+
+  # isr itt table by above/below median
+  isr_itt_tables_median <- make_isr_itt_quantile_tables(tau_df, n_calibration_quantiles = 2)
+  
+    
   # tau rank plot
   tau_rank_plot <- tau_df %>% make_tau_rank_order_plot(outcome_label)
   
+  # calibration plot
+  calibration_plot <- tau_df %>% make_calibration_plot(outcome)
   
   output_list <- list(
     'tau_df' = tau_df,
     # 'augmented_df' = augmented_df,
     #'quartile_heterogeneity_table' = quartile_heterogeneity_table,
     'tau_rank_plot'=tau_rank_plot,
+    'calibration_plot'=calibration_plot,
     #'group_tau_avgs'=group_tau_avgs,
     #'subsample_tau_avgs'=subsample_tau_avgs,
     'subsample_ate_table' = subsample_ate_table,
@@ -224,7 +239,12 @@ make_single_causal_forest <- function(dataset,
     'calibration_test'=forest_calibration,
     'calibration_tests_naive_quantile_dummies' = calibration_tests_naive[[1]],
     'calibration_tests_naive_linear' = calibration_tests_naive[[2]],
-    'quartile_heterogeneity_table' = quartile_heterogeneity_table
+    'quartile_heterogeneity_table' = quartile_heterogeneity_table,
+    'median_heterogeneity_table' = median_heterogeneity_table,
+    'ISR_ITT_quartile_table_wave1' = isr_itt_tables_quartile[[1]],
+    'ISR_ITT_quartile_table_wave2' = isr_itt_tables_quartile[[2]],
+    'ISR_ITT_median_table_wave1' = isr_itt_tables_median[[1]],
+    'ISR_ITT_median_table_wave2' = isr_itt_tables_median[[2]]
   )
   
   return(output_list)  
@@ -297,5 +317,5 @@ all_fullsample_cf_models <- make_causal_forest_for_each_outcome(master_pool,
 
 
 
-
+all_fullsample_cf_models %>% write_rds("all_fullsample_cf_models.Rds")
 

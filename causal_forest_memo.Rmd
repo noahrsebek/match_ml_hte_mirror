@@ -1,0 +1,246 @@
+---
+title: "Causal Forests for Saga/Match Treatment Heterogeneity"
+author: ""
+#date: "May 29, 2020"
+output: pdf_document
+fontsize: 9pt
+geometry: margin=0.75in
+header-includes:
+  - \usepackage{xcolor}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(warning = F, message = F)
+
+set.seed(20201117)
+
+use_clusters = F
+no_dupes = T
+
+library(kableExtra)
+library(ggplot2)
+library(knitr)
+library(dplyr)
+library(grf)
+
+as_factor <- forcats::as_factor
+
+Sys.setenv(
+  PATH = paste(
+    "/export/opt/texlive/2018/bin/x86_64-linux",
+    Sys.getenv("PATH"),
+    sep = ":"
+  )
+)
+
+source('mltx_globals.R')
+source('isr_outcomes_and_labels_list.R')
+
+fullsample_models <- readRDS('all_fullsample_cf_models.Rds')
+splitsample_models <- readRDS('combined_final_grf_splitsample_models.Rds')
+
+```
+
+This document presents the current `GRF` (Generalized Random Forests) Causal Forest analysis of treatment heterogeneity. We present results for the following outcomes:
+
+* Math Test Scores
+* Math Class Failures
+* Math GPA
+* Non-math GPA (calculated various ways)
+
+
+We use all covariates from our main analyses (except for randomization block, which enters into this analysis through inverse propensity weighting). These include gender, age, learning disability, free lunch recipient, race, baseline grade level, GPA, baseline test performance (and within-baseline-school math test decile), days absent from school, disciplinary incidents, including suspensions, and arrests.
+
+\newpage
+
+<!-- ## Section 1: with imputing block means for missing covariates -->
+<!-- ```{r, results='asis', include=T, echo=F, fig.height=2} -->
+<!-- final_forests_imputed %>% print_forests() -->
+
+<!-- ``` -->
+
+<!-- \newpage -->
+
+
+
+<!-- # Decile Heatmaps -->
+
+```{r, results='asis', include=T, echo=F, fig.height=3.5, fig.width=7,  warning=F}
+# for (comparison in all_pte_quantile_plots){
+#   
+#   for (plot in comparison){
+#     cat('\n')
+#     print(plot)
+#     cat('\n')
+#   }
+#       
+#  
+#     cat('\\newpage')
+# }
+
+
+for (outcome in names(outcome_and_label_list)[which(outcome_and_label_list %in% main_outcomes)]){#names(fullsample_models)){
+  cat('\n ')
+  cat('# Outcome: ', outcome, " \n")
+  
+  current_model <- fullsample_models[[outcome]]
+  current_splitsample_model <- splitsample_models[[outcome]]
+  
+  model_item_names <- names(current_model)
+  i = 0
+  
+  for (item in current_model){
+    i = i+1
+    # if there's a splitsample pvalue, add adjusted pvalue column
+    current_name <- model_item_names[i]
+    clean_name <- current_name %>% stringr::str_replace_all("_", " ")
+    
+    if (current_name %in% c('tau_df', 'subsample_ate_table'
+                            , 'quartile_heterogeneity_table', 'median_heterogeneity_table',
+                            "ISR_ITT_quartile_table_wave1", "ISR_ITT_quartile_table_wave2", "ISR_ITT_median_table_wave1", "ISR_ITT_median_table_wave2"
+                            )){next}
+    
+    if (current_name %in% c("calibration_test",
+                            "calibration_tests_naive_quantile_dummies",
+                            "calibration_tests_naive_linear")){
+      
+      item <- item %>%
+        mutate(lower_CI_full = estimate - 1.96*std.error,
+                upper_CI_full = estimate + 1.96*std.error) %>% 
+        rename('Estimate (full)' = estimate,
+               'Lower CI (full)' = lower_CI_full,
+               'Upper CI (full)' = upper_CI_full) %>%
+        select(-std.error)
+      
+      
+      # get same table from splitsample object
+      splitsample_item <- current_splitsample_model[[current_name]] %>% select(1,
+                                                                               "Estimate (split)" = estimate_median,
+                                                                               'Lower CI (split)' = lower_CI_median,
+                                                                               'Upper CI (split)' = upper_CI_median)
+      
+      item <- item %>% left_join(splitsample_item)
+      
+      colnames(item) <- colnames(item) %>% stringr::str_replace_all("_", " ")
+      
+      
+      if (current_name %in% "calibration_tests_naive_linear"){
+        item <- item %>% mutate(term = stringr::str_replace_all(term, "_", " "))
+      }
+      
+    }
+    
+    #item <- item[[1]]
+    
+    if (class(item) %in% 'gg'){
+      print(item)
+    }
+    if (class(item) %in% 'tbl_df'){
+      
+      temp_kable_table <- item %>%
+        kable(booktabs=T, digits=3,
+              escape=F,
+              longtable=T,
+              caption = paste0(clean_name, " - ", outcome)) 
+      
+      if (current_name %in% c("quartile_heterogeneity_table")){
+        temp_kable_table <- temp_kable_table %>% 
+          kable_styling(latex_options = c(#'striped',
+          'HOLD_position', "repeat_header")) %>% 
+          column_spec(1, width="27em") %>% 
+          pack_rows(index=c(" " = 2,
+                            "Other Outcomes" = length(outcomes_of_interest),
+                            "Baseline Variables" = length(table_baselines),
+                            "ISR Mechanisms, End of First Program Year" = length(isr_outcome_labels_2014),
+                            "ISR Mechanisms, End of Second Program Year" = length(isr_outcome_labels_2015)))
+        
+      } else if (current_name %in% "median_heterogeneity_table"){
+        temp_kable_table <- temp_kable_table %>%
+          kable_styling(latex_options = c(#'striped',
+          'HOLD_position', "repeat_header")) %>% 
+          column_spec(1, width="35em") %>% 
+          pack_rows(index=c(" " = 2,
+                            "Other Outcomes" = length(outcomes_of_interest),
+                            "Baseline Variables" = length(table_baselines),
+                            "ISR Mechanisms, End of First Program Year" = length(isr_outcome_labels_2014),
+                            "ISR Mechanisms, End of Second Program Year" = length(isr_outcome_labels_2015)))
+        
+      } else if(current_name %in% c("ISR_ITT_quartile_table_wave1", "ISR_ITT_quartile_table_wave2")){
+        temp_kable_table <- temp_kable_table %>% 
+          kable_styling(latex_options = c(#'striped',
+          'HOLD_position', "repeat_header")) %>% 
+          column_spec(1, width="23em") %>% 
+          column_spec(2:ncol(item), width='5em')
+        
+      } 
+      else if (current_name %in% c("ISR_ITT_median_table_wave1", "ISR_ITT_median_table_wave2")) {
+        temp_kable_table <- temp_kable_table %>%
+          kable_styling(latex_options = c(#'striped',
+          'HOLD_position', "repeat_header")) %>% 
+          column_spec(1, width="30em") %>% 
+          column_spec(2:ncol(item), width='5em')
+        
+      }
+      else {
+        temp_kable_table <- temp_kable_table %>%
+          kable_styling(latex_options = c('striped', 'HOLD_position')) %>% 
+          column_spec(1, width="10em") %>% 
+          column_spec(2:ncol(item), width='5em')
+      }
+      
+      print(temp_kable_table)
+    }
+    
+  }
+ 
+  
+   cat('\n')
+   cat('\\newpage')
+}
+
+```
+
+
+# Multiple-outcome Comparisons
+
+```{r, results='asis', include=T, echo=F, fig.height=4.4, fig.width=7.5,  warning=F}
+source('multi_outcome_heatmaps.R')
+for (comparison in all_multi_pte_comparisons){
+  
+  i=0
+  names_of_items <- names(comparison)
+  
+  for (item in comparison){
+    i = i+1
+    cat('\n')
+    if (class(item) %in% 'gg'){
+      print(item)
+    }
+    if (class(item) %in% 'tbl_df'){
+      next
+      cat('\\newpage')
+      item_name <- names(item)
+      item %>%
+        kable(booktabs=T, digits=3,
+              escape=F,
+              longtable=T,
+              caption = names_of_items[i]) %>% 
+        kable_styling(latex_options = c(#'striped',
+        'scale_down',
+          'HOLD_position', "repeat_header")) %>% 
+        column_spec(1, width="32em") %>% 
+        column_spec(2:ncol(item), width='4em') %>% 
+        pack_rows(index=c(" " = 3,
+                          "Other Outcomes" = length(outcomes_of_interest),
+                          "Baseline Variables" = length(table_baselines),
+                          "ISR Mechanisms, End of First Program Year" = length(isr_outcome_labels_2014),
+                          "ISR Mechanisms, End of Second Program Year" = length(isr_outcome_labels_2015))) %>% print()
+    }
+    cat('\n')
+  }
+      
+ 
+    cat('\\newpage')
+}
+```

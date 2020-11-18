@@ -255,11 +255,11 @@ for (overall_seed in overall_seeds){
     
     
     
-    # quartile baseline table
-    quartile_heterogeneity_table <- augmented_df %>% make_quartile_baseline_table(subsample_tau_avgs)
-    
-    # subsample ate table
-    subsample_ate_table <- subsample_tau_avgs %>% make_ate_summary_table(group_tau_avgs)
+    # # quartile baseline table
+    # quartile_heterogeneity_table <- augmented_df %>% make_quartile_baseline_table(subsample_tau_avgs)
+    # 
+    # # subsample ate table
+    # subsample_ate_table <- subsample_tau_avgs %>% make_ate_summary_table(group_tau_avgs)
     
     # calibration test (Jon D) output (no plot)
     calibration_tests_naive <- make_naive_calibration_tests(tau_df_splitsample, outcome)
@@ -281,16 +281,16 @@ for (overall_seed in overall_seeds){
       #'tau_rank_plot'=tau_rank_plot,
       #'group_tau_avgs'=group_tau_avgs,
       #'subsample_tau_avgs'=subsample_tau_avgs,
-      'subsample_ate_table' = subsample_ate_table,
+      #'subsample_ate_table' = subsample_ate_table,
       #'subsample_difference_table' = subsample_difference_table,
       #'forest_object'=tau.forest,
       'calibration_test'=forest_calibration,
       'calibration_tests_naive_quantile_dummies' = calibration_tests_naive[[1]],
-      'calibration_tests_naive_linear' = calibration_tests_naive[[2]],
+      'calibration_tests_naive_linear' = calibration_tests_naive[[2]]#,
       #'n_observations' = n.obs,
       #'tuning_output' = tau.forest$tuning.output,
       #'tau_df_splitsample' = tau_df_splitsample,
-       'quartile_heterogeneity_table' = quartile_heterogeneity_table
+      # 'quartile_heterogeneity_table' = quartile_heterogeneity_table
       )
     
     return(output_list)  

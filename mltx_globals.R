@@ -6,7 +6,9 @@ load_master_dataset <- function(addvars=T,
   require(dplyr)
   
   if (load_cached == T){
-    master_pool <- readr::read_csv("/export/projects/migrated-BAM/Match_AnalysisFiles_May2016/Results/2020/grf/master_dataset_cached.csv")
+    master_pool <- readr::read_csv("/export/projects/migrated-BAM/Match_AnalysisFiles_May2016/Results/2020/grf/master_dataset_cached.csv") %>% 
+      mutate(baseline_mathxil_inschool_decile_zeros = ifelse(is.na(baseline_mathxil_inschool_decile), 0, baseline_mathxil_inschool_decile),
+             missing_baseline_withinschool_mathtest = ifelse(is.na(baseline_mathxil_inschool_decile), 1, 0))
   }  else {
     master_pool <- readr::read_csv("/export/projects/migrated-BAM/Match_AnalysisFiles_May2016/SourceFiles/2017/analysisdata_unique_20180111_SS_alldupes.csv")
     master_pool <- master_pool %>%
@@ -62,23 +64,72 @@ load_master_dataset <- function(addvars=T,
 outcomes_of_interest <- c('mathxil_z_post1_np',
                           "math_gpa_full",
                           "math_failures_full",
+                          "math_failures_full_percent",
                           #"mathfailpercent_post1",
                           "nonmathcore_gpa_all",
                           "nonmathcore_fails_all",
+                          "nonmathcore_fail_all_percent",
                           "nonmathcore_gpa_bytopic_highgrade",
                           "nonmathcore_gpa_bytopic_lowgrade",
                           "nonmathcore_gpa_topthree_eachsem",
-                          "nonmathcore_gpa_topsix")
+                          "nonmathcore_gpa_topsix",
+                          "graduated_ontime",
+                          "graduated_ever",
+                          "gpa11_math",
+                          "eleventh_grade_math_z")
 
 outcomes_of_interest_labels <- c('Math test score (Z)',
                                  'Math GPA',
                                  "Math Course Failures",
+                                 "Percent of Math Courses Failed",
                                  "Non-Math Core GPA (all non-math core courses)",
                                  "Non-Math Core Failures (all non-math core courses)",
+                                 "Non-Math Core Percent Failed (all non-math core courses)",
                                  "Non-Math Core GPA (highest grade in each nonmath core topic each sem)",
                                  "Non-Math Core GPA (lowest grade in each nonmath core topic each sem)",
                                  "Non-Math Core GPA (top 3 nonmath core classes each sem)",
-                                 "Non-Math Core GPA (top 6 nonmath core classes during year)")
+                                 "Non-Math Core GPA (top 6 nonmath core classes during year)",
+                                 "Graduated on-time",
+                                 "Graduated ever",
+                                 "11th Grade Math GPA",
+                                 "11th Grade Math Test Score (Z)")
+
+
+# outcomes_of_interest <- c('mathxil_z_post1_np',
+#                           "math_gpa_full",
+#                           "math_failures_full",
+#                           #"mathfailpercent_post1",
+#                           "nonmathcore_gpa_all",
+#                           "nonmathcore_fails_all",
+#                           "nonmathcore_gpa_bytopic_highgrade",
+#                           "nonmathcore_gpa_bytopic_lowgrade",
+#                           "nonmathcore_gpa_topthree_eachsem",
+#                           "nonmathcore_gpa_topsix")
+# 
+# outcomes_of_interest_labels <- c('Math test score (Z)',
+#                                  'Math GPA',
+#                                  "Math Course Failures",
+#                                  "Non-Math Core GPA (all non-math core courses)",
+#                                  "Non-Math Core Failures (all non-math core courses)",
+#                                  "Non-Math Core GPA (highest grade in each nonmath core topic each sem)",
+#                                  "Non-Math Core GPA (lowest grade in each nonmath core topic each sem)",
+#                                  "Non-Math Core GPA (top 3 nonmath core classes each sem)",
+#                                  "Non-Math Core GPA (top 6 nonmath core classes during year)")
+
+
+# these are the outcomes we choose to display in the tables; we still run everything with all outcomes listed above
+#   so we can make our coefficient plot
+main_outcomes <- c('mathxil_z_post1_np',
+                   "math_gpa_full",
+                   "math_failures_full",
+                   "nonmathcore_gpa_all",
+                   "nonmathcore_fails_all",
+                   "nonmathcore_gpa_bytopic_highgrade",
+                   "nonmathcore_gpa_bytopic_lowgrade"#,
+                   # "nonmathcore_gpa_topthree_eachsem",
+                   # "nonmathcore_gpa_topsix"
+                   )
+
 
 
 outcome_and_label_list <- outcomes_of_interest
