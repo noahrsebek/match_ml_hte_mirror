@@ -126,6 +126,8 @@ main_outcomes <- c('mathxil_z_post1_np',
                    "nonmathcore_fails_all",
                    "nonmathcore_gpa_bytopic_highgrade",
                    "nonmathcore_gpa_bytopic_lowgrade"#,
+                   # "graduated_ontime",
+                   # "graduated_ever"#,
                    # "nonmathcore_gpa_topthree_eachsem",
                    # "nonmathcore_gpa_topsix"
                    )

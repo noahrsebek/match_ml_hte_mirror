@@ -66,7 +66,7 @@ make_qq_summary_table <- function(combined_df,
   table_master_df <- combined_df %>%
     left_join(isr_results_2014 %>% select(sid, all_of(isr_outcomes_2014), weight_post1), by='sid') %>% 
     left_join(isr_results_2015 %>% select(sid, all_of(isr_outcomes_2015), weight_post2), by='sid') %>% 
-    select(sid, 'QQ Group',
+    select(sid, 'QQ_group',
            !!sym(new_avg_colname_1),
            !!sym(new_avg_colname_2),
            all_of(all_table_vars),
@@ -78,34 +78,34 @@ make_qq_summary_table <- function(combined_df,
   
   qq_summary_table <- list()
   
-  for (qq_group in sort(unique(table_master_df$'QQ Group'))){
+  for (qq_group in sort(unique(table_master_df$'QQ_group'))){
     
     # get N in qq_group and get avg tau hat 
-    n_quant <- table_master_df %>% filter(`QQ Group` %in% qq_group) %>% nrow()
-    avg_tau_hat_1 <- table_master_df %>% filter(`QQ Group` %in% qq_group) %>% pull(!!sym(new_avg_colname_1)) %>% mean(na.rm=T)
-    avg_tau_hat_2 <- table_master_df %>% filter(`QQ Group` %in% qq_group) %>% pull(!!sym(new_avg_colname_2)) %>% mean(na.rm=T)
+    n_quant <- table_master_df %>% filter(QQ_group %in% qq_group) %>% nrow()
+    avg_tau_hat_1 <- table_master_df %>% filter(QQ_group %in% qq_group) %>% pull(!!sym(new_avg_colname_1)) %>% mean(na.rm=T)
+    avg_tau_hat_2 <- table_master_df %>% filter(QQ_group %in% qq_group) %>% pull(!!sym(new_avg_colname_2)) %>% mean(na.rm=T)
     
-    # avg_tau_hat <- tau_avg_df %>% filter(`QQ Group` %in% qq_group) %>% pull(avg)
+    # avg_tau_hat <- tau_avg_df %>% filter(QQ_group %in% qq_group) %>% pull(avg)
     
     # make column name
     col_name <- paste0("X/Y group ", qq_group)
     temp_quant_column <- c(avg_tau_hat_1, avg_tau_hat_2, n_quant)
     
     for (var in all_table_vars){
-      mean_val <- table_master_df %>% filter(`QQ Group` %in% qq_group) %>% pull(var) %>% mean(na.rm=T)
+      mean_val <- table_master_df %>% filter(QQ_group %in% qq_group) %>% pull(var) %>% mean(na.rm=T)
       temp_quant_column <- c(temp_quant_column, mean_val)
     }
     
     for (var in isr_outcomes_2014){
-      mean_val_values <- table_master_df %>% filter(`QQ Group` %in% qq_group) %>% pull(var) 
-      mean_val_weights <- table_master_df %>% filter(`QQ Group` %in% qq_group) %>% pull(weight_post1)
+      mean_val_values <- table_master_df %>% filter(QQ_group %in% qq_group) %>% pull(var) 
+      mean_val_weights <- table_master_df %>% filter(QQ_group %in% qq_group) %>% pull(weight_post1)
       mean_val <- weighted.mean(mean_val_values, mean_val_weights, na.rm=T)
       temp_quant_column <- c(temp_quant_column, mean_val)
     }
     
     for (var in isr_outcomes_2015){
-      mean_val_values <- table_master_df %>% filter(`QQ Group` %in% qq_group) %>% pull(var) 
-      mean_val_weights <- table_master_df %>% filter(`QQ Group` %in% qq_group) %>% pull(weight_post2)
+      mean_val_values <- table_master_df %>% filter(QQ_group %in% qq_group) %>% pull(var) 
+      mean_val_weights <- table_master_df %>% filter(QQ_group %in% qq_group) %>% pull(weight_post2)
       mean_val <- weighted.mean(mean_val_values, mean_val_weights, na.rm=T)
       temp_quant_column <- c(temp_quant_column, mean_val)
     }
@@ -132,14 +132,19 @@ make_qq_summary_table <- function(combined_df,
 make_cluster_scatterplot <- function(combined_df,
                                      new_avg_colname_1, new_avg_colname_2, outcome_1, outcome_2
                                      ){
-  
-  kmeans_output <- combined_df[, c(new_avg_colname_1, new_avg_colname_2)] %>%
-    kmeans(4, iter.max = 100)
-  
   find_hull <- function(df, var1=new_avg_colname_1, var2=new_avg_colname_2){
     df[chull(df[,var1], df[,var2]), ]}
   
-  cluster_df <- combined_df %>% bind_cols(clusters=as.factor(kmeans_output$cluster))
+  # picking optimal number of clusters
+  library(NbClust)
+  best_clusters <- NbClust(data=combined_df[, c(new_avg_colname_1, new_avg_colname_2)],
+                           min.nc = 2, max.nc = 5, method='kmeans', index='all')
+  
+  # 
+  # kmeans_output <- combined_df[, c(new_avg_colname_1, new_avg_colname_2)] %>%
+  #   kmeans(4, iter.max = 100)
+  # cluster_df <- combined_df %>% bind_cols(clusters=as.factor(kmeans_output$cluster))
+  cluster_df <- combined_df %>% bind_cols(clusters = as.factor(best_clusters$Best.partition))
   
   cluster_hulls <- plyr::ddply(cluster_df, 'clusters', find_hull)
   
@@ -245,10 +250,77 @@ make_cluster_scatterplot <- function(combined_df,
                         all_table_var_labels)),
     cluster_summary_table)
   
+  cluster_itt_table <- make_itt_group_tables(cluster_df, 'clusters')
   
-  
-  return(list(cluster_scatterplot, cluster_summary_table))
+  return(list(cluster_scatterplot, cluster_summary_table, cluster_itt_table))
 }
+
+
+make_itt_group_tables <- function(input_df,
+                                  group_col,
+                                  outcome_list = outcome_and_label_list){
+  
+  
+  
+  
+  
+  itt_vars <- c("d13andunder","d14","d15","d16","d17andover","dlearningdisabled","dfreelunch",
+                "dblack","dhispanic","dother","dgrade9","dgrade10","gpa_pre_zeros",
+                "numAs_pre","numBs_pre","numCs_pre","numDs_pre","numFs_pre","missing_gpa_pre",
+                "days_absent_pre_zeros","missing_attend_pre","mathxil_z_pre_np_zeros","readxil_z_pre_np_zeros",
+                "mathxil_z_pre_missing","readxil_z_pre_missing","oss_dis_pre_zeros","incidents_pre_zeros",
+                "any_arrests_pre","violent_pre","property_pre","drug_pre", "blocknum")
+  
+  
+  master <- load_master_dataset()
+  
+  master <- input_df %>% select(sid, group_col) %>% 
+    left_join(master, by=c('sid')) %>%
+    mutate(blocknum = forcats::as_factor(blocknum)) %>%
+    filter(!is.na(!!sym(group_col))) %>% as_tibble()
+  
+  
+  empty_tibble <- NULL
+  
+  # for a given outcome...
+  for (outcome_label in names(outcome_list)){
+    
+    
+    outcome_of_interest <- outcome_list[outcome_label]
+    
+    fitted_model_df <- lm(paste0(outcome_of_interest,
+                                 " ~ dmatch:", group_col, " + ",
+                                 group_col, " + ",
+                                 paste(itt_vars, collapse='+')),
+                          data=master) %>%
+      lmtest::coeftest(vcov=sandwich::vcovHC(., type='HC1')) %>% 
+      broom::tidy() %>% filter(term %>% startsWith('dmatch:')) %>% 
+      mutate( term = term %>% stringr::str_replace(paste0('dmatch:', group_col), "")) %>% 
+      rename(!!sym(group_col) := term)
+    
+    
+    fitted_model_table_row <- fitted_model_df %>% select(-statistic) %>%
+      mutate(estimate = round(estimate, 3),
+             std.error = round(std.error, 3),
+             stars = case_when(
+               p.value < 0.01 ~ '***',
+               p.value < 0.05 ~ "**",
+               p.value < 0.01 ~ "*",
+               TRUE ~ ""),
+             Estimate = paste0(estimate, stars, " (", std.error,")"),
+             !!sym(group_col) := paste('Group',  !!sym(group_col))) %>% 
+      select(Estimate, !!sym(group_col)) %>% 
+      tidyr::pivot_wider(values_from = Estimate, names_from = group_col) %>% 
+      mutate(Outcome = outcome_label) %>% relocate(Outcome)
+    
+    
+    
+    empty_tibble <- empty_tibble %>% bind_rows(fitted_model_table_row)
+  }
+  
+  return(empty_tibble) 
+}
+
 
 make_multi_pte_comparison_plots <- function(outcome_1,
                                          outcome_2){
@@ -284,7 +356,7 @@ make_multi_pte_comparison_plots <- function(outcome_1,
   combined_df <- inner_join(tau_df_1, tau_df_2, by='sid') %>% 
     mutate(!!new_quantile_colname_1 := qcut(!!sym(new_avg_colname_1), cuts),
            !!new_quantile_colname_2 := qcut(!!sym(new_avg_colname_2), cuts),
-           'QQ Group' = paste0(!!sym(new_quantile_colname_1), "x", !!sym(new_quantile_colname_2)))
+           'QQ_group' = paste0(!!sym(new_quantile_colname_1), "x", !!sym(new_quantile_colname_2)))
     
   
   
@@ -311,11 +383,11 @@ make_multi_pte_comparison_plots <- function(outcome_1,
   find_hull <- function(df, var1=new_avg_colname_1, var2=new_avg_colname_2){
     df[chull(df[,var1], df[,var2]), ]}
   
-  hulls <- plyr::ddply(combined_df, "`QQ Group`", find_hull)
+  hulls <- plyr::ddply(combined_df, "QQ_group", find_hull)
   
   pte_two_var_scatterplot <- combined_df %>% ggplot(aes(x=!!sym(new_avg_colname_1),
                                                         y=!!sym(new_avg_colname_2),
-                                                        color = `QQ Group`)
+                                                        color = QQ_group)
   ) +
     geom_point(stroke=0, alpha=0.3) + geom_rug(alpha=.1, color='black') +
     geom_polygon(data=hulls, alpha=.1, linetype='dashed') +
@@ -327,7 +399,7 @@ make_multi_pte_comparison_plots <- function(outcome_1,
   # adding in density plot version of the above
   # --> make a plot with the counts and percentages for each group
   qq_summary_df <- combined_df %>%
-    group_by(`QQ Group`) %>%
+    group_by(QQ_group) %>%
     summarize(N = n(),
               !!new_avg_colname_1 := median(!!sym(new_avg_colname_1)),
               !!new_avg_colname_2 := median(!!sym(new_avg_colname_2))
@@ -335,7 +407,7 @@ make_multi_pte_comparison_plots <- function(outcome_1,
     ungroup() %>% 
     mutate(pct = N/sum(N),
            Percent = paste0(round(pct*100, 1), "%"),
-           label = paste0(`QQ Group`, ": ", N, ", ", Percent))
+           label = paste0(QQ_group, ": ", N, ", ", Percent))
   
   
   
@@ -350,14 +422,18 @@ make_multi_pte_comparison_plots <- function(outcome_1,
     ) +
     ggrepel::geom_text_repel(data=qq_summary_df, aes(label=label), color = 'white', size=3) + 
     geom_rug(alpha=.1, color='black') +
-    geom_polygon(aes(color = `QQ Group`),
+    geom_polygon(aes(color = QQ_group),
                  data=hulls, alpha=.1, linetype='dashed') + theme(legend.position = 'none') + ggtitle(paste0("PTE Densities: ",
                                                                                                              outcome_1, " vs ", outcome_2))
   
   
   qq_summary_table <- combined_df %>% make_qq_summary_table(new_avg_colname_1, new_avg_colname_2, outcome_1, outcome_2)
   
+  # making ITT table on other outcomes
+  combined_df$nugroupvar = combined_df$QQ_group
+  qq_itt_table <- make_itt_group_tables(combined_df, 'nugroupvar')
 
+  
   cluster_output <- combined_df %>% make_cluster_scatterplot(new_avg_colname_1, new_avg_colname_2, outcome_1, outcome_2)
   
   
@@ -365,14 +441,23 @@ make_multi_pte_comparison_plots <- function(outcome_1,
                           ", Outcome Y: ", outcome_2,
                           " above/below median group summary table")
   
+  qq_itt_table_name <- paste0("Outcome X: ", outcome_1,
+                          ", Outcome Y: ", outcome_2,
+                          " above/below median group ITT table")
+  
   cluster_table_name <- paste0("Outcome X: ", outcome_1,
                           ", Outcome Y: ", outcome_2,
                           " cluster summary table")
+  cluster_itt_table_name <- paste0("Outcome X: ", outcome_1,
+                               ", Outcome Y: ", outcome_2,
+                               " cluster ITT table")
   
   outlist <- list(pte_two_var_scatterplot, pte_two_var_densityplot, cluster_output[[1]])
   
   outlist[[qq_table_name]] <- qq_summary_table
+  outlist[[qq_itt_table_name]] <- qq_itt_table
   outlist[[cluster_table_name]] <- cluster_output[[2]]
+  outlist[[cluster_itt_table_name]] <- cluster_output[[3]]
   
   
   outlist

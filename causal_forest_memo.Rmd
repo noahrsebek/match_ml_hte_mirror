@@ -7,6 +7,9 @@ fontsize: 9pt
 geometry: margin=0.75in
 header-includes:
   - \usepackage{xcolor}
+  - \usepackage{pdflscape}
+  - \newcommand{\blandscape}{\begin{landscape}}
+  - \newcommand{\elandscape}{\end{landscape}}
 ---
 
 ```{r setup, include=FALSE}
@@ -66,6 +69,60 @@ We use all covariates from our main analyses (except for randomization block, wh
 
 <!-- # Decile Heatmaps -->
 
+\blandscape
+```{r, include=T, echo=F, fig.height=10, fig.width=15}
+library(scales)
+
+
+plot_data <- NULL
+
+for (outcome in outcomes_of_interest_labels){
+  
+  # get fullsample calibration test
+  plot_data <- plot_data %>%
+    bind_rows(
+      fullsample_models[[outcome]]$calibration_test %>%
+        filter(term %in% 'differential.forest.prediction') %>% 
+        select(est=estimate, lo=lower_CI_full, hi=upper_CI_full) %>% 
+        mutate(type = 'fullsample', outcome=outcome)
+      )
+  
+  # get splitsample calibration test
+  plot_data <- plot_data %>%
+    bind_rows(
+      splitsample_models[[outcome]]$calibration_test %>%
+        filter(term %in% 'differential.forest.prediction') %>% 
+        select(est=estimate_median, lo=lower_CI_median, hi=upper_CI_median) %>% 
+        mutate(type = 'splitsample', outcome=outcome)
+    )
+}
+
+
+full_het_plot <- plot_data %>%
+  #filter(outcome %in% names(outcome_and_label_list)[which(outcome_and_label_list %in% main_outcomes)]) %>% 
+  ggplot(aes(y=est,
+             x=factor(outcome, levels = unique(outcome)),
+             color=outcome,
+             group=factor(type, levels=unique(type)))) +
+  geom_point(position = position_dodge(0.4)) +
+  geom_errorbar(aes(ymin=lo, ymax=hi),
+                width=0.6,
+                position = position_dodge(0.4)) +
+  geom_hline(yintercept = 1, linetype='dashed', alpha=0.5) + 
+  geom_hline(yintercept = 0, linetype='dashed', alpha=0.5) +
+  scale_x_discrete(labels = wrap_format(10)) + 
+  ggtitle(label = 'Calibration Test: Detecting Heterogeneity',
+          subtitle = paste0("For each outcome, the estimate and confidence intervals for the differential",
+                            " forest prediction coefficient are shown for the full-sample (left) and split-sample procedure (right).",
+                            " Horizontal lines at 1 and 0.")) +
+  theme_bw() +   theme(legend.position='none') + 
+  xlab('Outcome of interest') + ylab('Coefficient estimate')
+
+print(full_het_plot)
+```
+\elandscape
+\newpage
+
 ```{r, results='asis', include=T, echo=F, fig.height=3.5, fig.width=7,  warning=F}
 # for (comparison in all_pte_quantile_plots){
 #   
@@ -97,8 +154,8 @@ for (outcome in names(outcome_and_label_list)[which(outcome_and_label_list %in% 
     clean_name <- current_name %>% stringr::str_replace_all("_", " ")
     
     if (current_name %in% c('tau_df', 'subsample_ate_table'
-                            , 'quartile_heterogeneity_table', 'median_heterogeneity_table',
-                            "ISR_ITT_quartile_table_wave1", "ISR_ITT_quartile_table_wave2", "ISR_ITT_median_table_wave1", "ISR_ITT_median_table_wave2"
+                            # , 'quartile_heterogeneity_table', 'median_heterogeneity_table',
+                            # "ISR_ITT_quartile_table_wave1", "ISR_ITT_quartile_table_wave2", "ISR_ITT_median_table_wave1", "ISR_ITT_median_table_wave2"
                             )){next}
     
     if (current_name %in% c("calibration_test",
@@ -166,7 +223,7 @@ for (outcome in names(outcome_and_label_list)[which(outcome_and_label_list %in% 
                             "ISR Mechanisms, End of First Program Year" = length(isr_outcome_labels_2014),
                             "ISR Mechanisms, End of Second Program Year" = length(isr_outcome_labels_2015)))
         
-      } else if(current_name %in% c("ISR_ITT_quartile_table_wave1", "ISR_ITT_quartile_table_wave2")){
+      } else if(current_name %in% c("ISR_ITT_quartile_table_wave1", "ISR_ITT_quartile_table_wave2", "quartile_ITT_table")){
         temp_kable_table <- temp_kable_table %>% 
           kable_styling(latex_options = c(#'striped',
           'HOLD_position', "repeat_header")) %>% 
@@ -174,7 +231,7 @@ for (outcome in names(outcome_and_label_list)[which(outcome_and_label_list %in% 
           column_spec(2:ncol(item), width='5em')
         
       } 
-      else if (current_name %in% c("ISR_ITT_median_table_wave1", "ISR_ITT_median_table_wave2")) {
+      else if (current_name %in% c("ISR_ITT_median_table_wave1", "ISR_ITT_median_table_wave2", "median_ITT_table")) {
         temp_kable_table <- temp_kable_table %>%
           kable_styling(latex_options = c(#'striped',
           'HOLD_position', "repeat_header")) %>% 
@@ -218,10 +275,24 @@ for (comparison in all_multi_pte_comparisons){
       print(item)
     }
     if (class(item) %in% 'tbl_df'){
-      next
+      #next
       cat('\\newpage')
       item_name <- names(item)
-      item %>%
+      
+      if (names_of_items[i] %>% stringr::str_detect('ITT')){
+        item %>%
+        kable(booktabs=T, digits=3,
+              escape=F,
+              longtable=T,
+              caption = names_of_items[i]) %>% 
+        kable_styling(latex_options = c(#'striped',
+        'scale_down',
+          'HOLD_position', "repeat_header")) %>% 
+        column_spec(1, width="32em") %>% 
+        column_spec(2:ncol(item), width='4em') %>% print()
+        
+      } else {
+        item %>%
         kable(booktabs=T, digits=3,
               escape=F,
               longtable=T,
@@ -236,6 +307,8 @@ for (comparison in all_multi_pte_comparisons){
                           "Baseline Variables" = length(table_baselines),
                           "ISR Mechanisms, End of First Program Year" = length(isr_outcome_labels_2014),
                           "ISR Mechanisms, End of Second Program Year" = length(isr_outcome_labels_2015))) %>% print()
+      }
+      
     }
     cat('\n')
   }

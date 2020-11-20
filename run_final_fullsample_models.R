@@ -218,7 +218,13 @@ make_single_causal_forest <- function(dataset,
   # isr itt table by above/below median
   isr_itt_tables_median <- make_isr_itt_quantile_tables(tau_df, n_calibration_quantiles = 2)
   
-    
+  # other outcomes itt by quartile
+  quartile_ITT_table <- tau_df %>% make_itt_quantile_tables(n_calibration_quantiles = 4)
+  
+  # other outcomes itt by above/below median
+  median_ITT_table <- tau_df %>% make_itt_quantile_tables(n_calibration_quantiles = 2)
+  
+  
   # tau rank plot
   tau_rank_plot <- tau_df %>% make_tau_rank_order_plot(outcome_label)
   
@@ -240,7 +246,9 @@ make_single_causal_forest <- function(dataset,
     'calibration_tests_naive_quantile_dummies' = calibration_tests_naive[[1]],
     'calibration_tests_naive_linear' = calibration_tests_naive[[2]],
     'quartile_heterogeneity_table' = quartile_heterogeneity_table,
+    'quartile_ITT_table' = quartile_ITT_table,
     'median_heterogeneity_table' = median_heterogeneity_table,
+    'median_ITT_table' = median_ITT_table,
     'ISR_ITT_quartile_table_wave1' = isr_itt_tables_quartile[[1]],
     'ISR_ITT_quartile_table_wave2' = isr_itt_tables_quartile[[2]],
     'ISR_ITT_median_table_wave1' = isr_itt_tables_median[[1]],

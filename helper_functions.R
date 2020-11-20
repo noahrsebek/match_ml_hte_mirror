@@ -696,7 +696,7 @@ make_isr_itt_quantile_tables <- function(tau_df,
                    p.value < 0.01 ~ "*",
                    TRUE ~ ""),
                  Estimate = paste0(estimate, stars, " (", std.error,")")) %>%
-          select('Linear Quartile Tx Interaction Term' = Estimate)
+          select('Linear Quantile Tx Interaction Term' = Estimate)
         
         fitted_model_table_row <- fitted_model_table_row %>% bind_cols(linear_term_model)
         
@@ -807,7 +807,120 @@ make_tau_rank_order_plot <- function(tau_df, outcome_label){
   return(tau_rank_plot)
 }
 
-
+make_itt_quantile_tables <- function(tau_df,
+                                     n_calibration_quantiles=2,
+                                     outcome_list = outcome_and_label_list){
+  qcut <- function(x, n) {
+    cut(x, quantile(x, seq(0, 1, length = n + 1)), labels = seq_len(n),
+        include.lowest = TRUE)
+  }
+  
+  tau_df <- tau_df %>%
+    mutate(calibration_quantiles = grf_tau_hat %>% qcut(n_calibration_quantiles))
+  
+  
+  
+  make_quartile_itt_table <- function(outcome_list, datafile, raw=F){
+    empty_tibble <- NULL
+    
+    # for a given outcome...
+    for (outcome_label in names(outcome_list)){
+      
+      
+      outcome_of_interest <- outcome_list[outcome_label]
+      
+      fitted_model_df <- lm(paste0(outcome_of_interest, " ~ ",
+                                   "dmatch:calibration_quantiles + calibration_quantiles +",
+                                   paste(itt_vars, collapse='+')),
+                            data=datafile) %>%
+        lmtest::coeftest(vcov=sandwich::vcovHC(., type='HC1')) %>% 
+        broom::tidy() %>% filter(term %>% startsWith('dmatch:')) %>% 
+        mutate( term = term %>% stringr::str_replace('dmatch:calibration_quantiles', "")) %>% 
+        rename(calibration_quantiles = term)
+      
+      
+      
+      if (raw==F){
+        fitted_model_table_row <- fitted_model_df %>% select(-statistic) %>%
+          mutate(estimate = round(estimate, 3),
+                 std.error = round(std.error, 3),
+                 stars = case_when(
+                   p.value < 0.01 ~ '***',
+                   p.value < 0.05 ~ "**",
+                   p.value < 0.01 ~ "*",
+                   TRUE ~ ""),
+                 Estimate = paste0(estimate, stars, " (", std.error,")"),
+                 calibration_quantiles = paste('Quantile', calibration_quantiles)) %>% 
+          select(Estimate, calibration_quantiles) %>% 
+          tidyr::pivot_wider(values_from = Estimate, names_from = calibration_quantiles) %>% 
+          mutate(Question = outcome_label) %>% relocate(Question)
+        
+        
+        
+        
+        linear_term_model <- lm(paste0(outcome_of_interest, " ~ ",
+                                       "calibration_quantiles + dmatch:calibration_quantiles +",
+                                       paste(itt_vars, collapse='+')),
+                                data=datafile %>% mutate(calibration_quantiles = as.numeric(calibration_quantiles)))  %>%
+          lmtest::coeftest(vcov=sandwich::vcovHC(., type='HC1')) %>% 
+          broom::tidy() %>% filter(term %>% startsWith('calibration_quantiles:')) %>% 
+          select(-statistic) %>%
+          mutate(estimate = round(estimate, 3),
+                 std.error = round(std.error, 3),
+                 stars = case_when(
+                   p.value < 0.01 ~ '***',
+                   p.value < 0.05 ~ "**",
+                   p.value < 0.01 ~ "*",
+                   TRUE ~ ""),
+                 Estimate = paste0(estimate, stars, " (", std.error,")")) %>%
+          select('Linear Quantile Tx Interaction Term' = Estimate)
+        
+        fitted_model_table_row <- fitted_model_table_row %>% bind_cols(linear_term_model)
+        
+        
+      }
+      
+      if (raw==T){
+        fitted_model_table_row <- fitted_model_df %>% select(-statistic) %>%
+          mutate(calibration_quantiles = as.numeric(calibration_quantiles)) %>% 
+          select(estimate, calibration_quantiles)
+      }
+      
+      
+      
+      
+      empty_tibble <- empty_tibble %>% bind_rows(fitted_model_table_row)}
+    
+    return(empty_tibble)
+  }
+  
+  
+  
+  itt_vars <- c("d13andunder","d14","d15","d16","d17andover","dlearningdisabled","dfreelunch",
+                "dblack","dhispanic","dother","dgrade9","dgrade10","gpa_pre_zeros",
+                "numAs_pre","numBs_pre","numCs_pre","numDs_pre","numFs_pre","missing_gpa_pre",
+                "days_absent_pre_zeros","missing_attend_pre","mathxil_z_pre_np_zeros","readxil_z_pre_np_zeros",
+                "mathxil_z_pre_missing","readxil_z_pre_missing","oss_dis_pre_zeros","incidents_pre_zeros",
+                "any_arrests_pre","violent_pre","property_pre","drug_pre", "blocknum")
+  
+  
+  master <- load_master_dataset()
+  
+  master <- master %>% left_join(tau_df, by='sid') %>%
+    mutate(blocknum = forcats::as_factor(blocknum)) %>% 
+    filter(!is.na(calibration_quantiles))
+  
+  
+  
+  output_table <- make_quartile_itt_table(outcome_list, master)
+  
+  
+  
+  
+  
+  
+  output_table
+}
 
 make_cross_pte_comparison_table <- function(one_iteration){
   cross_pte_comparisons <- NULL
