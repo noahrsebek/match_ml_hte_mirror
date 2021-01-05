@@ -176,8 +176,8 @@ make_above_below_median_summary_table <- function(tau_df){
   all_isr_outcomes <- c(isr_outcomes_2014, isr_outcomes_2015)
   all_isr_outcome_labels <- c(isr_outcome_labels_2014, isr_outcome_labels_2015)
   
-  all_table_vars <- c(outcomes_of_interest, table_baselines, all_isr_outcomes)
-  all_table_var_labels <- c(outcomes_of_interest_labels, table_baselines_labels, all_isr_outcome_labels)
+  all_table_vars <- c(outcomes_of_interest, additional_table_outcomes, table_baselines, all_isr_outcomes)
+  all_table_var_labels <- c(outcomes_of_interest_labels, additional_table_outcome_labels, table_baselines_labels, all_isr_outcome_labels)
   
   # merging master dataset with ISR
   table_master_df <- master_pool %>%
@@ -254,8 +254,8 @@ make_quartile_summary_table <- function(tau_df){
   all_isr_outcomes <- c(isr_outcomes_2014, isr_outcomes_2015)
   all_isr_outcome_labels <- c(isr_outcome_labels_2014, isr_outcome_labels_2015)
   
-  all_table_vars <- c(outcomes_of_interest, table_baselines, all_isr_outcomes)
-  all_table_var_labels <- c(outcomes_of_interest_labels, table_baselines_labels, all_isr_outcome_labels)
+  all_table_vars <- c(outcomes_of_interest, additional_table_outcomes,table_baselines, all_isr_outcomes)
+  all_table_var_labels <- c(outcomes_of_interest_labels, additional_table_outcome_labels, table_baselines_labels, all_isr_outcome_labels)
   
   # merging master dataset with ISR
   table_master_df <- master_pool %>%
@@ -617,7 +617,7 @@ make_calibration_plot <- function(tau_df, outcome_of_interest,
     geom_abline(intercept = 0, slope = 1) + 
     xlab("Average Quantile Individual PTE") + 
     ylab("ITT Estimate for Quantile") + 
-    ggtitle(paste0("Calibration Plot: ", outcome_of_interest),
+    ggtitle(paste0("Naive Calibration Plot: ", outcome_of_interest, "(full sample)"),
             subtitle = calibration_test_note)
   
   
@@ -809,7 +809,8 @@ make_tau_rank_order_plot <- function(tau_df, outcome_label){
 
 make_itt_quantile_tables <- function(tau_df,
                                      n_calibration_quantiles=2,
-                                     outcome_list = outcome_and_label_list){
+                                     outcome_list = append(outcome_and_label_list,
+                                                           additional_table_outcome_label_list)){
   qcut <- function(x, n) {
     cut(x, quantile(x, seq(0, 1, length = n + 1)), labels = seq_len(n),
         include.lowest = TRUE)

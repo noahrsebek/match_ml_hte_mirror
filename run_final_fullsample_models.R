@@ -1,4 +1,5 @@
-set.seed(20201111)
+#set.seed(20201111)
+set.seed(10694205)
 
 # loading packages and setting global vars ----
 library('dplyr')
@@ -11,10 +12,11 @@ library('furrr')
 library('purrr')
 library(forcats)
 
-default_n_trees <- 10000
+default_n_trees <- 100000
+default_n_trees_WY_forests <- 25000
 to_cluster <- F
 
-
+select <- dplyr::select
 
 # load data ----
 setwd("/export/projects/migrated-BAM/Match_AnalysisFiles_May2016/Results/2020/grf")
@@ -37,7 +39,7 @@ make_single_causal_forest <- function(dataset,
                                       splitsample_df,
                                       tuned_parameters = c("sample.fraction", "mtry",
                                                            "honesty.fraction", "honesty.prune.leaves",
-                                                           "alpha", "imbalance.penalty")){
+                                                           "alpha", "imbalance.penalty", "min.node.size")){
   
   
   
@@ -57,18 +59,18 @@ make_single_causal_forest <- function(dataset,
   
   
   # fit W forest
-  forest.W <- regression_forest(X, W, tune.parameters = tuned_parameters, min.node.size = 5)
+  forest.W <- regression_forest(X, W, tune.parameters = tuned_parameters, num.trees = default_n_trees_WY_forests)
   W.hat <- predict(forest.W)$predictions
   
   
   # fit Y forest
-  forest.Y <- regression_forest(X, Y, tune.parameters = tuned_parameters, min.node.size = 5)
+  forest.Y <- regression_forest(X, Y, tune.parameters = tuned_parameters, num.trees = default_n_trees_WY_forests)
   Y.hat <- predict(forest.Y)$predictions
   
   
   tau.forest <- causal_forest(X, Y, W,
                               tune.parameters = tuned_parameters,
-                              min.node.size = 5,
+                              #min.node.size = 5,
                               sample.weights = sample_weights,
                               W.hat = W.hat,
                               Y.hat = Y.hat,
@@ -139,7 +141,7 @@ make_single_causal_forest <- function(dataset,
     broom::tidy() %>% 
     mutate(lower_CI_full = estimate - 1.96*std.error,
            upper_CI_full = estimate + 1.96*std.error) %>% 
-    select(-statistic, "In-sample P-val"=p.value) %>% filter(! term %in% 'Yhat')
+    select(-statistic, "Full-sample P-val"=p.value) %>% filter(! term %in% 'Yhat')
   
   #forest_calibration <- test_calibration(tau.forest) %>% broom::tidy()
   
@@ -236,7 +238,6 @@ make_single_causal_forest <- function(dataset,
     # 'augmented_df' = augmented_df,
     #'quartile_heterogeneity_table' = quartile_heterogeneity_table,
     'tau_rank_plot'=tau_rank_plot,
-    'calibration_plot'=calibration_plot,
     #'group_tau_avgs'=group_tau_avgs,
     #'subsample_tau_avgs'=subsample_tau_avgs,
     'subsample_ate_table' = subsample_ate_table,
@@ -245,14 +246,15 @@ make_single_causal_forest <- function(dataset,
     'calibration_test'=forest_calibration,
     'calibration_tests_naive_quantile_dummies' = calibration_tests_naive[[1]],
     'calibration_tests_naive_linear' = calibration_tests_naive[[2]],
+    'calibration_plot'=calibration_plot,
     'quartile_heterogeneity_table' = quartile_heterogeneity_table,
     'quartile_ITT_table' = quartile_ITT_table,
     'median_heterogeneity_table' = median_heterogeneity_table,
     'median_ITT_table' = median_ITT_table,
-    'ISR_ITT_quartile_table_wave1' = isr_itt_tables_quartile[[1]],
-    'ISR_ITT_quartile_table_wave2' = isr_itt_tables_quartile[[2]],
-    'ISR_ITT_median_table_wave1' = isr_itt_tables_median[[1]],
-    'ISR_ITT_median_table_wave2' = isr_itt_tables_median[[2]]
+    'ISR_ITT_quartile_table_wave_1' = isr_itt_tables_quartile[[1]],
+    'ISR_ITT_quartile_table_wave_2' = isr_itt_tables_quartile[[2]],
+    'ISR_ITT_median_table_wave_1' = isr_itt_tables_median[[1]],
+    'ISR_ITT_median_table_wave_2' = isr_itt_tables_median[[2]]
   )
   
   return(output_list)  

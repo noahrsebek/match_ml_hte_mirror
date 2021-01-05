@@ -55,6 +55,11 @@ This document presents the current `GRF` (Generalized Random Forests) Causal For
 
 We use all covariates from our main analyses (except for randomization block, which enters into this analysis through inverse propensity weighting). These include gender, age, learning disability, free lunch recipient, race, baseline grade level, GPA, baseline test performance (and within-baseline-school math test decile), days absent from school, disciplinary incidents, including suspensions, and arrests.
 
+All plots and tables presented are estimated using the `GRF` algorithm estimated on the full analysis sample unless noted otherwise. We use split-sample estimation procedures to get estimates and confidence intervals for our calibration tests (splitsample quantities are denoted with '(split)').
+
+
+
+
 \newpage
 
 <!-- ## Section 1: with imputing block means for missing covariates -->
@@ -70,6 +75,8 @@ We use all covariates from our main analyses (except for randomization block, wh
 <!-- # Decile Heatmaps -->
 
 \blandscape
+# Full Outcome Plot 
+
 ```{r, include=T, echo=F, fig.height=10, fig.width=15}
 library(scales)
 
@@ -156,6 +163,9 @@ for (outcome in names(outcome_and_label_list)[which(outcome_and_label_list %in% 
     if (current_name %in% c('tau_df', 'subsample_ate_table'
                             # , 'quartile_heterogeneity_table', 'median_heterogeneity_table',
                             # "ISR_ITT_quartile_table_wave1", "ISR_ITT_quartile_table_wave2", "ISR_ITT_median_table_wave1", "ISR_ITT_median_table_wave2"
+                            ,
+                            "calibration_tests_naive_quantile_dummies",
+                            "calibration_tests_naive_linear"
                             )){next}
     
     if (current_name %in% c("calibration_test",
@@ -207,7 +217,7 @@ for (outcome in names(outcome_and_label_list)[which(outcome_and_label_list %in% 
           'HOLD_position', "repeat_header")) %>% 
           column_spec(1, width="27em") %>% 
           pack_rows(index=c(" " = 2,
-                            "Other Outcomes" = length(outcomes_of_interest),
+                            "Other Outcomes" = length(outcomes_of_interest) + length(additional_table_outcomes),
                             "Baseline Variables" = length(table_baselines),
                             "ISR Mechanisms, End of First Program Year" = length(isr_outcome_labels_2014),
                             "ISR Mechanisms, End of Second Program Year" = length(isr_outcome_labels_2015)))
@@ -218,7 +228,7 @@ for (outcome in names(outcome_and_label_list)[which(outcome_and_label_list %in% 
           'HOLD_position', "repeat_header")) %>% 
           column_spec(1, width="35em") %>% 
           pack_rows(index=c(" " = 2,
-                            "Other Outcomes" = length(outcomes_of_interest),
+                            "Other Outcomes" = length(outcomes_of_interest) + length(additional_table_outcomes),
                             "Baseline Variables" = length(table_baselines),
                             "ISR Mechanisms, End of First Program Year" = length(isr_outcome_labels_2014),
                             "ISR Mechanisms, End of Second Program Year" = length(isr_outcome_labels_2015)))
@@ -263,6 +273,8 @@ for (outcome in names(outcome_and_label_list)[which(outcome_and_label_list %in% 
 
 ```{r, results='asis', include=T, echo=F, fig.height=4.4, fig.width=7.5,  warning=F}
 source('multi_outcome_heatmaps.R')
+str_replace <- stringr::str_replace
+
 for (comparison in all_multi_pte_comparisons){
   
   i=0
@@ -271,14 +283,21 @@ for (comparison in all_multi_pte_comparisons){
   for (item in comparison){
     i = i+1
     cat('\n')
-    if (class(item) %in% 'gg'){
+    if ('gg' %in% class(item)){
       print(item)
     }
-    if (class(item) %in% 'tbl_df'){
+    if ('tbl_df' %in% class(item)){
       #next
       cat('\\newpage')
-      item_name <- names(item)
+
+      # now replace the names of the table to be more intuitive;
+      names(item) <- names(item) %>%
+        str_replace(' 1x1', ': Low X, Low Y') %>%
+        str_replace(' 1x2', ': Low X, High Y') %>% 
+        str_replace(' 2x1', ': High X, Low Y') %>% 
+        str_replace(' 2x2', ': High X, High Y')
       
+        
       if (names_of_items[i] %>% stringr::str_detect('ITT')){
         item %>%
         kable(booktabs=T, digits=3,
@@ -291,7 +310,7 @@ for (comparison in all_multi_pte_comparisons){
         column_spec(1, width="32em") %>% 
         column_spec(2:ncol(item), width='4em') %>% print()
         
-      } else {
+      } else { #it's the summary table
         item %>%
         kable(booktabs=T, digits=3,
               escape=F,
@@ -303,7 +322,7 @@ for (comparison in all_multi_pte_comparisons){
         column_spec(1, width="32em") %>% 
         column_spec(2:ncol(item), width='4em') %>% 
         pack_rows(index=c(" " = 3,
-                          "Other Outcomes" = length(outcomes_of_interest),
+                          "Other Outcomes" = length(outcomes_of_interest) + length(additional_table_outcomes),
                           "Baseline Variables" = length(table_baselines),
                           "ISR Mechanisms, End of First Program Year" = length(isr_outcome_labels_2014),
                           "ISR Mechanisms, End of Second Program Year" = length(isr_outcome_labels_2015))) %>% print()

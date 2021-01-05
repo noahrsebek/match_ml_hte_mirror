@@ -68,7 +68,8 @@ outcomes_of_interest <- c('mathxil_z_post1_np',
                           #"mathfailpercent_post1",
                           "nonmathcore_gpa_all",
                           "nonmathcore_fails_all",
-                          "nonmathcore_fail_all_percent",
+                          #"nonmathcore_fail_all_percent",
+                          "nonmathcore_fails_percent_all",
                           "nonmathcore_gpa_bytopic_highgrade",
                           "nonmathcore_gpa_bytopic_lowgrade",
                           "nonmathcore_gpa_topthree_eachsem",
@@ -93,6 +94,13 @@ outcomes_of_interest_labels <- c('Math test score (Z)',
                                  "Graduated ever",
                                  "11th Grade Math GPA",
                                  "11th Grade Math Test Score (Z)")
+
+
+additional_table_outcomes <- c("incidents_post1", "days_absent_post1", "oss_dis_post1")
+additional_table_outcome_labels <- c("Disciplinary Incidents", "Days Absent", "Out-of-School Suspensions")
+additional_table_outcome_label_list <- additional_table_outcomes
+names(additional_table_outcome_label_list) <- additional_table_outcome_labels
+
 
 
 # outcomes_of_interest <- c('mathxil_z_post1_np',
