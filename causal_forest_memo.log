@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.19 (TeX Live 2018) (preloaded format=pdflatex 2018.9.11)  15 DEC 2020 14:32
+This is pdfTeX, Version 3.14159265-2.6-1.40.19 (TeX Live 2018) (preloaded format=pdflatex 2018.9.11)  19 JAN 2021 19:41
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -830,102 +830,6 @@ LaTeX Warning: Label `tab:unnamed-chunk-3' multiply defined.
 
 LaTeX Warning: Label `tab:unnamed-chunk-3' multiply defined.
 
-
-LaTeX Warning: Label `tab:unnamed-chunk-3' multiply defined.
-
-
-LaTeX Warning: Label `tab:unnamed-chunk-3' multiply defined.
-
-
-LaTeX Warning: Label `tab:unnamed-chunk-3' multiply defined.
-
-
-LaTeX Warning: Label `tab:unnamed-chunk-3' multiply defined.
-
-
-LaTeX Warning: Label `tab:unnamed-chunk-3' multiply defined.
-
-
-LaTeX Warning: Label `tab:unnamed-chunk-3' multiply defined.
-
-
-LaTeX Warning: Label `tab:unnamed-chunk-3' multiply defined.
-
-
-LaTeX Warning: Label `tab:unnamed-chunk-3' multiply defined.
-
-
-LaTeX Warning: Label `tab:unnamed-chunk-3' multiply defined.
-
-
-LaTeX Warning: Label `tab:unnamed-chunk-3' multiply defined.
-
-
-LaTeX Warning: Label `tab:unnamed-chunk-3' multiply defined.
-
-
-LaTeX Warning: Label `tab:unnamed-chunk-3' multiply defined.
-
-
-LaTeX Warning: Label `tab:unnamed-chunk-3' multiply defined.
-
-
-LaTeX Warning: Label `tab:unnamed-chunk-3' multiply defined.
-
-
-LaTeX Warning: Label `tab:unnamed-chunk-3' multiply defined.
-
-
-LaTeX Warning: Label `tab:unnamed-chunk-3' multiply defined.
-
-
-LaTeX Warning: Label `tab:unnamed-chunk-3' multiply defined.
-
-
-LaTeX Warning: Label `tab:unnamed-chunk-3' multiply defined.
-
-
-LaTeX Warning: Label `tab:unnamed-chunk-3' multiply defined.
-
-
-LaTeX Warning: Label `tab:unnamed-chunk-3' multiply defined.
-
-
-LaTeX Warning: Label `tab:unnamed-chunk-3' multiply defined.
-
-
-LaTeX Warning: Label `tab:unnamed-chunk-3' multiply defined.
-
-
-LaTeX Warning: Label `tab:unnamed-chunk-3' multiply defined.
-
-
-LaTeX Warning: Label `tab:unnamed-chunk-3' multiply defined.
-
-
-LaTeX Warning: Label `tab:unnamed-chunk-3' multiply defined.
-
-
-LaTeX Warning: Label `tab:unnamed-chunk-3' multiply defined.
-
-
-LaTeX Warning: Label `tab:unnamed-chunk-3' multiply defined.
-
-
-LaTeX Warning: Label `tab:unnamed-chunk-3' multiply defined.
-
-
-LaTeX Warning: Label `tab:unnamed-chunk-3' multiply defined.
-
-
-LaTeX Warning: Label `tab:unnamed-chunk-3' multiply defined.
-
-
-LaTeX Warning: Label `tab:unnamed-chunk-3' multiply defined.
-
-
-LaTeX Warning: Label `tab:unnamed-chunk-3' multiply defined.
-
 )
 \openout1 = `causal_forest_memo.aux'.
 
@@ -1093,25 +997,25 @@ File: ts1lmr.fd 2009/10/30 v1.6 Font defs for Latin Modern
 ) [1
 
 {/export/opt/texlive/2018/texmf-var/fonts/map/pdftex/updmap/pdftex.map}]
-<causal_forest_memo_files/figure-latex/unnamed-chunk-1-1.pdf, id=41, 1084.05pt 
-x 722.7pt>
+<causal_forest_memo_files/figure-latex/unnamed-chunk-1-1.pdf, id=41, 1078.0275p
+t x 713.66624pt>
 File: causal_forest_memo_files/figure-latex/unnamed-chunk-1-1.pdf Graphic file 
 (type pdf)
 <use causal_forest_memo_files/figure-latex/unnamed-chunk-1-1.pdf>
 Package pdftex.def Info: causal_forest_memo_files/figure-latex/unnamed-chunk-1-
 1.pdf  used on input line 126.
-(pdftex.def)             Requested size: 686.5942pt x 457.72946pt.
+(pdftex.def)             Requested size: 686.57959pt x 454.52335pt.
 [2
 
  <./causal_forest_memo_files/figure-latex/unnamed-chunk-1-1.pdf>]
-<causal_forest_memo_files/figure-latex/unnamed-chunk-2-1.pdf, id=54, 505.89pt x
- 252.945pt>
+<causal_forest_memo_files/figure-latex/unnamed-chunk-2-1.pdf, id=56, 495.8525pt
+ x 243.91125pt>
 File: causal_forest_memo_files/figure-latex/unnamed-chunk-2-1.pdf Graphic file 
 (type pdf)
 <use causal_forest_memo_files/figure-latex/unnamed-chunk-2-1.pdf>
 Package pdftex.def Info: causal_forest_memo_files/figure-latex/unnamed-chunk-2-
 1.pdf  used on input line 131.
-(pdftex.def)             Requested size: 505.89645pt x 252.94823pt.
+(pdftex.def)             Requested size: 495.85129pt x 243.91064pt.
 
 Overfull \hbox (18.00262pt too wide) in paragraph at lines 139--139
 []|\T1/lmr/m/n/10 (-20) differential.forest.prediction|  
@@ -1122,14 +1026,14 @@ Overfull \hbox (40.11pt too wide) in alignment at lines 133--141
  [] [] [] [] [] [] [] [] 
  []
 
-<causal_forest_memo_files/figure-latex/unnamed-chunk-2-2.pdf, id=55, 505.89pt x
- 252.945pt>
+<causal_forest_memo_files/figure-latex/unnamed-chunk-2-2.pdf, id=57, 499.8675pt
+ x 243.91125pt>
 File: causal_forest_memo_files/figure-latex/unnamed-chunk-2-2.pdf Graphic file 
 (type pdf)
 <use causal_forest_memo_files/figure-latex/unnamed-chunk-2-2.pdf>
 Package pdftex.def Info: causal_forest_memo_files/figure-latex/unnamed-chunk-2-
 2.pdf  used on input line 143.
-(pdftex.def)             Requested size: 505.89645pt x 252.94823pt.
+(pdftex.def)             Requested size: 499.87389pt x 243.91435pt.
 LaTeX Font Info:    External font `lmex10' loaded for size
 (Font)              <10> on input line 148.
 LaTeX Font Info:    External font `lmex10' loaded for size
@@ -1161,15 +1065,15 @@ Overfull \hbox (32.7914pt too wide) in alignment at lines 159--181
  [] [] [] [] [] 
  []
 
-[3
 
- <./causal_forest_memo_files/figure-latex/unnamed-chunk-2-1.pdf> <./causal_fore
-st_memo_files/figure-latex/unnamed-chunk-2-2.pdf>]
 Overfull \hbox (32.7914pt too wide) in alignment at lines 181--202
  [] [] [] [] [] 
  []
 
+[3
 
+ <./causal_forest_memo_files/figure-latex/unnamed-chunk-2-1.pdf> <./causal_fore
+st_memo_files/figure-latex/unnamed-chunk-2-2.pdf>]
 Overfull \hbox (32.7914pt too wide) in alignment at lines 202--223
  [] [] [] [] [] 
  []
@@ -1245,14 +1149,14 @@ Overfull \hbox (15.28033pt too wide) in paragraph at lines 975--975
  []
 
 [26] [27] [28] [29] [30]
-<causal_forest_memo_files/figure-latex/unnamed-chunk-2-3.pdf, id=197, 505.89pt 
-x 252.945pt>
+<causal_forest_memo_files/figure-latex/unnamed-chunk-2-3.pdf, id=203, 495.8525p
+t x 243.91125pt>
 File: causal_forest_memo_files/figure-latex/unnamed-chunk-2-3.pdf Graphic file 
 (type pdf)
 <use causal_forest_memo_files/figure-latex/unnamed-chunk-2-3.pdf>
 Package pdftex.def Info: causal_forest_memo_files/figure-latex/unnamed-chunk-2-
 3.pdf  used on input line 1031.
-(pdftex.def)             Requested size: 505.89645pt x 252.94823pt.
+(pdftex.def)             Requested size: 495.85129pt x 243.91064pt.
 
 Overfull \hbox (18.00262pt too wide) in paragraph at lines 1039--1039
 []|\T1/lmr/m/n/10 (-20) differential.forest.prediction|  
@@ -1263,14 +1167,14 @@ Overfull \hbox (40.11pt too wide) in alignment at lines 1033--1041
  [] [] [] [] [] [] [] [] 
  []
 
-<causal_forest_memo_files/figure-latex/unnamed-chunk-2-4.pdf, id=198, 505.89pt 
-x 252.945pt>
+<causal_forest_memo_files/figure-latex/unnamed-chunk-2-4.pdf, id=204, 499.8675p
+t x 243.91125pt>
 File: causal_forest_memo_files/figure-latex/unnamed-chunk-2-4.pdf Graphic file 
 (type pdf)
 <use causal_forest_memo_files/figure-latex/unnamed-chunk-2-4.pdf>
 Package pdftex.def Info: causal_forest_memo_files/figure-latex/unnamed-chunk-2-
 4.pdf  used on input line 1043.
-(pdftex.def)             Requested size: 505.89645pt x 252.94823pt.
+(pdftex.def)             Requested size: 499.87389pt x 243.91435pt.
 
 Overfull \hbox (32.7914pt too wide) in alignment at lines 1045--1050
  [] [] [] [] [] 
@@ -1378,14 +1282,14 @@ Overfull \hbox (15.28033pt too wide) in paragraph at lines 1875--1875
  []
 
 [53] [54] [55] [56] [57] [58]
-<causal_forest_memo_files/figure-latex/unnamed-chunk-2-5.pdf, id=338, 505.89pt 
-x 252.945pt>
+<causal_forest_memo_files/figure-latex/unnamed-chunk-2-5.pdf, id=348, 495.8525p
+t x 243.91125pt>
 File: causal_forest_memo_files/figure-latex/unnamed-chunk-2-5.pdf Graphic file 
 (type pdf)
 <use causal_forest_memo_files/figure-latex/unnamed-chunk-2-5.pdf>
 Package pdftex.def Info: causal_forest_memo_files/figure-latex/unnamed-chunk-2-
 5.pdf  used on input line 1932.
-(pdftex.def)             Requested size: 505.89645pt x 252.94823pt.
+(pdftex.def)             Requested size: 495.85129pt x 243.91064pt.
 
 Overfull \hbox (18.00262pt too wide) in paragraph at lines 1940--1940
 []|\T1/lmr/m/n/10 (-20) differential.forest.prediction|  
@@ -1396,14 +1300,14 @@ Overfull \hbox (40.11pt too wide) in alignment at lines 1934--1942
  [] [] [] [] [] [] [] [] 
  []
 
-<causal_forest_memo_files/figure-latex/unnamed-chunk-2-6.pdf, id=339, 505.89pt 
-x 252.945pt>
+<causal_forest_memo_files/figure-latex/unnamed-chunk-2-6.pdf, id=349, 499.8675p
+t x 243.91125pt>
 File: causal_forest_memo_files/figure-latex/unnamed-chunk-2-6.pdf Graphic file 
 (type pdf)
 <use causal_forest_memo_files/figure-latex/unnamed-chunk-2-6.pdf>
 Package pdftex.def Info: causal_forest_memo_files/figure-latex/unnamed-chunk-2-
 6.pdf  used on input line 1944.
-(pdftex.def)             Requested size: 505.89645pt x 252.94823pt.
+(pdftex.def)             Requested size: 499.87389pt x 243.91435pt.
 
 Overfull \hbox (32.7914pt too wide) in alignment at lines 1946--1951
  [] [] [] [] [] 
@@ -1511,14 +1415,14 @@ Overfull \hbox (15.28033pt too wide) in paragraph at lines 2776--2776
  []
 
 [81] [82] [83] [84] [85] [86]
-<causal_forest_memo_files/figure-latex/unnamed-chunk-2-7.pdf, id=478, 505.89pt 
-x 252.945pt>
+<causal_forest_memo_files/figure-latex/unnamed-chunk-2-7.pdf, id=492, 500.87125
+pt x 243.91125pt>
 File: causal_forest_memo_files/figure-latex/unnamed-chunk-2-7.pdf Graphic file 
 (type pdf)
 <use causal_forest_memo_files/figure-latex/unnamed-chunk-2-7.pdf>
 Package pdftex.def Info: causal_forest_memo_files/figure-latex/unnamed-chunk-2-
 7.pdf  used on input line 2833.
-(pdftex.def)             Requested size: 505.89645pt x 252.94823pt.
+(pdftex.def)             Requested size: 500.87764pt x 243.91435pt.
 
 Overfull \hbox (18.00262pt too wide) in paragraph at lines 2841--2841
 []|\T1/lmr/m/n/10 (-20) differential.forest.prediction|  
@@ -1529,14 +1433,14 @@ Overfull \hbox (40.11pt too wide) in alignment at lines 2835--2843
  [] [] [] [] [] [] [] [] 
  []
 
-<causal_forest_memo_files/figure-latex/unnamed-chunk-2-8.pdf, id=479, 505.89pt 
-x 252.945pt>
+<causal_forest_memo_files/figure-latex/unnamed-chunk-2-8.pdf, id=493, 499.8675p
+t x 243.91125pt>
 File: causal_forest_memo_files/figure-latex/unnamed-chunk-2-8.pdf Graphic file 
 (type pdf)
 <use causal_forest_memo_files/figure-latex/unnamed-chunk-2-8.pdf>
 Package pdftex.def Info: causal_forest_memo_files/figure-latex/unnamed-chunk-2-
 8.pdf  used on input line 2845.
-(pdftex.def)             Requested size: 505.89645pt x 252.94823pt.
+(pdftex.def)             Requested size: 499.87389pt x 243.91435pt.
 
 Overfull \hbox (32.7914pt too wide) in alignment at lines 2847--2852
  [] [] [] [] [] 
@@ -1644,14 +1548,14 @@ Overfull \hbox (15.28033pt too wide) in paragraph at lines 3677--3677
  []
 
 [110] [111] [112] [113] [114]
-<causal_forest_memo_files/figure-latex/unnamed-chunk-2-9.pdf, id=617, 505.89pt 
-x 252.945pt>
+<causal_forest_memo_files/figure-latex/unnamed-chunk-2-9.pdf, id=635, 500.87125
+pt x 243.91125pt>
 File: causal_forest_memo_files/figure-latex/unnamed-chunk-2-9.pdf Graphic file 
 (type pdf)
 <use causal_forest_memo_files/figure-latex/unnamed-chunk-2-9.pdf>
 Package pdftex.def Info: causal_forest_memo_files/figure-latex/unnamed-chunk-2-
 9.pdf  used on input line 3734.
-(pdftex.def)             Requested size: 505.89645pt x 252.94823pt.
+(pdftex.def)             Requested size: 500.87764pt x 243.91435pt.
 
 Overfull \hbox (18.00262pt too wide) in paragraph at lines 3742--3742
 []|\T1/lmr/m/n/10 (-20) differential.forest.prediction|  
@@ -1662,14 +1566,14 @@ Overfull \hbox (40.11pt too wide) in alignment at lines 3736--3744
  [] [] [] [] [] [] [] [] 
  []
 
-<causal_forest_memo_files/figure-latex/unnamed-chunk-2-10.pdf, id=618, 505.89pt
- x 252.945pt>
+<causal_forest_memo_files/figure-latex/unnamed-chunk-2-10.pdf, id=636, 499.8675
+pt x 243.91125pt>
 File: causal_forest_memo_files/figure-latex/unnamed-chunk-2-10.pdf Graphic file
  (type pdf)
 <use causal_forest_memo_files/figure-latex/unnamed-chunk-2-10.pdf>
 Package pdftex.def Info: causal_forest_memo_files/figure-latex/unnamed-chunk-2-
 10.pdf  used on input line 3746.
-(pdftex.def)             Requested size: 505.89645pt x 252.94823pt.
+(pdftex.def)             Requested size: 499.87389pt x 243.91435pt.
 
 Overfull \hbox (32.7914pt too wide) in alignment at lines 3748--3753
  [] [] [] [] [] 
@@ -1777,14 +1681,14 @@ Overfull \hbox (15.28033pt too wide) in paragraph at lines 4578--4578
  []
 
 [138] [139] [140] [141] [142]
-<causal_forest_memo_files/figure-latex/unnamed-chunk-2-11.pdf, id=757, 505.89pt
- x 252.945pt>
+<causal_forest_memo_files/figure-latex/unnamed-chunk-2-11.pdf, id=779, 500.8712
+5pt x 243.91125pt>
 File: causal_forest_memo_files/figure-latex/unnamed-chunk-2-11.pdf Graphic file
  (type pdf)
 <use causal_forest_memo_files/figure-latex/unnamed-chunk-2-11.pdf>
 Package pdftex.def Info: causal_forest_memo_files/figure-latex/unnamed-chunk-2-
 11.pdf  used on input line 4636.
-(pdftex.def)             Requested size: 505.89645pt x 252.94823pt.
+(pdftex.def)             Requested size: 500.87764pt x 243.91435pt.
 
 Overfull \hbox (18.00262pt too wide) in paragraph at lines 4644--4644
 []|\T1/lmr/m/n/10 (-20) differential.forest.prediction|  
@@ -1795,14 +1699,14 @@ Overfull \hbox (40.11pt too wide) in alignment at lines 4638--4646
  [] [] [] [] [] [] [] [] 
  []
 
-<causal_forest_memo_files/figure-latex/unnamed-chunk-2-12.pdf, id=758, 505.89pt
- x 252.945pt>
+<causal_forest_memo_files/figure-latex/unnamed-chunk-2-12.pdf, id=780, 499.8675
+pt x 243.91125pt>
 File: causal_forest_memo_files/figure-latex/unnamed-chunk-2-12.pdf Graphic file
  (type pdf)
 <use causal_forest_memo_files/figure-latex/unnamed-chunk-2-12.pdf>
 Package pdftex.def Info: causal_forest_memo_files/figure-latex/unnamed-chunk-2-
 12.pdf  used on input line 4648.
-(pdftex.def)             Requested size: 505.89645pt x 252.94823pt.
+(pdftex.def)             Requested size: 499.87389pt x 243.91435pt.
 
 Overfull \hbox (32.7914pt too wide) in alignment at lines 4650--4655
  [] [] [] [] [] 
@@ -1828,7 +1732,8 @@ Overfull \hbox (32.7914pt too wide) in alignment at lines 4664--4686
  [] [] [] [] [] 
  []
 
-[143 <./causal_forest_memo_files/figure-latex/unnamed-chunk-2-11.pdf>]
+[143 <./causal_forest_memo_files/figure-latex/unnamed-chunk-2-11.pdf> <./causal
+_forest_memo_files/figure-latex/unnamed-chunk-2-12.pdf>]
 Overfull \hbox (32.7914pt too wide) in alignment at lines 4686--4707
  [] [] [] [] [] 
  []
@@ -1838,22 +1743,22 @@ Overfull \hbox (32.7914pt too wide) in alignment at lines 4707--4728
  [] [] [] [] [] 
  []
 
-[144 <./causal_forest_memo_files/figure-latex/unnamed-chunk-2-12.pdf>]
+
 Overfull \hbox (32.7914pt too wide) in alignment at lines 4728--4748
  [] [] [] [] [] 
  []
 
-
+[144]
 Overfull \hbox (32.7914pt too wide) in alignment at lines 4748--4768
  [] [] [] [] [] 
  []
 
-[145]
+
 Overfull \hbox (32.7914pt too wide) in alignment at lines 4768--4789
  [] [] [] [] [] 
  []
 
-
+[145]
 Overfull \hbox (32.7914pt too wide) in alignment at lines 4789--4809
  [] [] [] [] [] 
  []
@@ -1863,17 +1768,17 @@ Overfull \hbox (32.7914pt too wide) in alignment at lines 4809--4829
  [] [] [] [] [] 
  []
 
-[146]
+
 Overfull \hbox (32.7914pt too wide) in alignment at lines 4829--4849
  [] [] [] [] [] 
  []
 
-
+[146]
 Overfull \hbox (32.7914pt too wide) in alignment at lines 4849--4866
  [] [] [] [] [] 
  []
 
-[147] [148]
+[147]
 Overfull \hbox (46.11pt too wide) in alignment at lines 4868--4873
  [] [] [] [] [] [] 
  []
@@ -1898,7 +1803,7 @@ Overfull \hbox (46.11pt too wide) in alignment at lines 4882--4904
  [] [] [] [] [] [] 
  []
 
-[149] [150] [151] [152] [153] [154] [155] [156] [157]
+[148] [149] [150] [151] [152] [153] [154] [155] [156] [157]
 Overfull \hbox (15.28033pt too wide) in paragraph at lines 5295--5295
 \T1/lmr/m/n/10 (-20) drug/inhalant/prescription 
  []
@@ -1909,14 +1814,14 @@ Overfull \hbox (15.28033pt too wide) in paragraph at lines 5480--5480
  []
 
 [166] [167] [168] [169] [170]
-<causal_forest_memo_files/figure-latex/unnamed-chunk-2-13.pdf, id=897, 505.89pt
- x 252.945pt>
+<causal_forest_memo_files/figure-latex/unnamed-chunk-2-13.pdf, id=923, 500.8712
+5pt x 243.91125pt>
 File: causal_forest_memo_files/figure-latex/unnamed-chunk-2-13.pdf Graphic file
  (type pdf)
 <use causal_forest_memo_files/figure-latex/unnamed-chunk-2-13.pdf>
 Package pdftex.def Info: causal_forest_memo_files/figure-latex/unnamed-chunk-2-
 13.pdf  used on input line 5538.
-(pdftex.def)             Requested size: 505.89645pt x 252.94823pt.
+(pdftex.def)             Requested size: 500.87764pt x 243.91435pt.
 
 Overfull \hbox (18.00262pt too wide) in paragraph at lines 5546--5546
 []|\T1/lmr/m/n/10 (-20) differential.forest.prediction|  
@@ -1927,14 +1832,14 @@ Overfull \hbox (40.11pt too wide) in alignment at lines 5540--5548
  [] [] [] [] [] [] [] [] 
  []
 
-<causal_forest_memo_files/figure-latex/unnamed-chunk-2-14.pdf, id=898, 505.89pt
- x 252.945pt>
+<causal_forest_memo_files/figure-latex/unnamed-chunk-2-14.pdf, id=924, 499.8675
+pt x 243.91125pt>
 File: causal_forest_memo_files/figure-latex/unnamed-chunk-2-14.pdf Graphic file
  (type pdf)
 <use causal_forest_memo_files/figure-latex/unnamed-chunk-2-14.pdf>
 Package pdftex.def Info: causal_forest_memo_files/figure-latex/unnamed-chunk-2-
 14.pdf  used on input line 5550.
-(pdftex.def)             Requested size: 505.89645pt x 252.94823pt.
+(pdftex.def)             Requested size: 499.87389pt x 243.91435pt.
 
 Overfull \hbox (32.7914pt too wide) in alignment at lines 5552--5557
  [] [] [] [] [] 
@@ -1960,7 +1865,8 @@ Overfull \hbox (32.7914pt too wide) in alignment at lines 5566--5588
  [] [] [] [] [] 
  []
 
-[171 <./causal_forest_memo_files/figure-latex/unnamed-chunk-2-13.pdf>]
+[171 <./causal_forest_memo_files/figure-latex/unnamed-chunk-2-13.pdf> <./causal
+_forest_memo_files/figure-latex/unnamed-chunk-2-14.pdf>]
 Overfull \hbox (32.7914pt too wide) in alignment at lines 5588--5609
  [] [] [] [] [] 
  []
@@ -1970,22 +1876,22 @@ Overfull \hbox (32.7914pt too wide) in alignment at lines 5609--5630
  [] [] [] [] [] 
  []
 
-[172 <./causal_forest_memo_files/figure-latex/unnamed-chunk-2-14.pdf>]
+
 Overfull \hbox (32.7914pt too wide) in alignment at lines 5630--5650
  [] [] [] [] [] 
  []
 
-
+[172]
 Overfull \hbox (32.7914pt too wide) in alignment at lines 5650--5670
  [] [] [] [] [] 
  []
 
-[173]
+
 Overfull \hbox (32.7914pt too wide) in alignment at lines 5670--5691
  [] [] [] [] [] 
  []
 
-
+[173]
 Overfull \hbox (32.7914pt too wide) in alignment at lines 5691--5711
  [] [] [] [] [] 
  []
@@ -1995,17 +1901,17 @@ Overfull \hbox (32.7914pt too wide) in alignment at lines 5711--5731
  [] [] [] [] [] 
  []
 
-[174]
+
 Overfull \hbox (32.7914pt too wide) in alignment at lines 5731--5751
  [] [] [] [] [] 
  []
 
-
+[174]
 Overfull \hbox (32.7914pt too wide) in alignment at lines 5751--5768
  [] [] [] [] [] 
  []
 
-[175] [176]
+[175]
 Overfull \hbox (46.11pt too wide) in alignment at lines 5770--5775
  [] [] [] [] [] [] 
  []
@@ -2030,7 +1936,7 @@ Overfull \hbox (46.11pt too wide) in alignment at lines 5784--5806
  [] [] [] [] [] [] 
  []
 
-[177] [178] [179] [180] [181] [182] [183] [184] [185]
+[176] [177] [178] [179] [180] [181] [182] [183] [184] [185]
 Overfull \hbox (15.28033pt too wide) in paragraph at lines 6197--6197
 \T1/lmr/m/n/10 (-20) drug/inhalant/prescription 
  []
@@ -2041,22 +1947,22 @@ Overfull \hbox (15.28033pt too wide) in paragraph at lines 6382--6382
  []
 
 [194] [195] [196] [197] [198]
-<causal_forest_memo_files/figure-latex/unnamed-chunk-3-1.pdf, id=1036, 542.025p
-t x 317.185pt>
+<causal_forest_memo_files/figure-latex/unnamed-chunk-3-1.pdf, id=1066, 536.0025
+pt x 309.155pt>
 File: causal_forest_memo_files/figure-latex/unnamed-chunk-3-1.pdf Graphic file 
 (type pdf)
 <use causal_forest_memo_files/figure-latex/unnamed-chunk-3-1.pdf>
 Package pdftex.def Info: causal_forest_memo_files/figure-latex/unnamed-chunk-3-
 1.pdf  used on input line 6439.
-(pdftex.def)             Requested size: 505.90584pt x 296.04858pt.
-<causal_forest_memo_files/figure-latex/unnamed-chunk-3-2.pdf, id=1037, 542.025p
-t x 317.185pt>
+(pdftex.def)             Requested size: 505.8871pt x 291.78506pt.
+<causal_forest_memo_files/figure-latex/unnamed-chunk-3-2.pdf, id=1067, 529.98pt
+ x 309.155pt>
 File: causal_forest_memo_files/figure-latex/unnamed-chunk-3-2.pdf Graphic file 
 (type pdf)
 <use causal_forest_memo_files/figure-latex/unnamed-chunk-3-2.pdf>
 Package pdftex.def Info: causal_forest_memo_files/figure-latex/unnamed-chunk-3-
 2.pdf  used on input line 6441.
-(pdftex.def)             Requested size: 505.90584pt x 296.04858pt.
+(pdftex.def)             Requested size: 505.89609pt x 295.10605pt.
 [199 <./causal_forest_memo_files/figure-latex/unnamed-chunk-3-1.pdf> <./causal_
 forest_memo_files/figure-latex/unnamed-chunk-3-2.pdf>]
 Overfull \hbox (34.11pt too wide) in alignment at lines 6445--6450
@@ -2409,802 +2315,25 @@ Overfull \hbox (34.11pt too wide) in alignment at lines 7368--7377
  []
 
 [224] [225]
-<causal_forest_memo_files/figure-latex/unnamed-chunk-3-3.pdf, id=1181, 542.025p
-t x 317.185pt>
-File: causal_forest_memo_files/figure-latex/unnamed-chunk-3-3.pdf Graphic file 
-(type pdf)
-<use causal_forest_memo_files/figure-latex/unnamed-chunk-3-3.pdf>
-Package pdftex.def Info: causal_forest_memo_files/figure-latex/unnamed-chunk-3-
-3.pdf  used on input line 7381.
-(pdftex.def)             Requested size: 505.90584pt x 296.04858pt.
-<causal_forest_memo_files/figure-latex/unnamed-chunk-3-4.pdf, id=1182, 542.025p
-t x 317.185pt>
-File: causal_forest_memo_files/figure-latex/unnamed-chunk-3-4.pdf Graphic file 
-(type pdf)
-<use causal_forest_memo_files/figure-latex/unnamed-chunk-3-4.pdf>
-Package pdftex.def Info: causal_forest_memo_files/figure-latex/unnamed-chunk-3-
-4.pdf  used on input line 7383.
-(pdftex.def)             Requested size: 505.90584pt x 296.04858pt.
-[226 <./causal_forest_memo_files/figure-latex/unnamed-chunk-3-3.pdf> <./causal_
-forest_memo_files/figure-latex/unnamed-chunk-3-4.pdf>]
-Overfull \hbox (34.11pt too wide) in alignment at lines 7387--7392
- [] [] [] [] [] 
- []
-
-
-Overfull \hbox (34.11pt too wide) in alignment at lines 7392--7397
- [] [] [] [] [] 
- []
-
-
-Overfull \hbox (34.11pt too wide) in alignment at lines 7397--7399
- [] [] [] [] [] 
- []
-
-
-Overfull \hbox (34.11pt too wide) in alignment at lines 7399--7401
- [] [] [] [] [] 
- []
-
-
-Overfull \hbox (34.11pt too wide) in alignment at lines 7401--7423
- [] [] [] [] [] 
- []
-
-
-Overfull \hbox (34.11pt too wide) in alignment at lines 7423--7444
- [] [] [] [] [] 
- []
-
-
-Overfull \hbox (34.11pt too wide) in alignment at lines 7444--7465
- [] [] [] [] [] 
- []
-
-
-Overfull \hbox (34.11pt too wide) in alignment at lines 7465--7485
- [] [] [] [] [] 
- []
-
-[227]
-Overfull \hbox (34.11pt too wide) in alignment at lines 7485--7505
- [] [] [] [] [] 
- []
-
-
-Overfull \hbox (34.11pt too wide) in alignment at lines 7505--7526
- [] [] [] [] [] 
- []
-
-[228]
-Overfull \hbox (34.11pt too wide) in alignment at lines 7526--7546
- [] [] [] [] [] 
- []
-
-
-Overfull \hbox (34.11pt too wide) in alignment at lines 7546--7566
- [] [] [] [] [] 
- []
-
-
-Overfull \hbox (34.11pt too wide) in alignment at lines 7566--7586
- [] [] [] [] [] 
- []
-
-[229]
-Overfull \hbox (34.11pt too wide) in alignment at lines 7586--7604
- [] [] [] [] [] 
- []
-
-[230] [231]
-Overfull \hbox (34.11pt too wide) in alignment at lines 7608--7613
- [] [] [] [] [] 
- []
-
-
-Overfull \hbox (34.11pt too wide) in alignment at lines 7613--7618
- [] [] [] [] [] 
- []
-
-
-Overfull \hbox (34.11pt too wide) in alignment at lines 7618--7620
- [] [] [] [] [] 
- []
-
-
-Overfull \hbox (34.11pt too wide) in alignment at lines 7620--7622
- [] [] [] [] [] 
- []
-
-
-Overfull \hbox (34.11pt too wide) in alignment at lines 7622--7644
- [] [] [] [] [] 
- []
-
-[232]
-Overfull \hbox (34.11pt too wide) in alignment at lines 7648--7653
- [] [] [] [] [] 
- []
-
-
-Overfull \hbox (34.11pt too wide) in alignment at lines 7653--7658
- [] [] [] [] [] 
- []
-
-
-Overfull \hbox (34.11pt too wide) in alignment at lines 7658--7660
- [] [] [] [] [] 
- []
-
-
-Overfull \hbox (34.11pt too wide) in alignment at lines 7660--7662
- [] [] [] [] [] 
- []
-
-
-Overfull \hbox (34.11pt too wide) in alignment at lines 7662--7686
- [] [] [] [] [] 
- []
-
-
-Overfull \hbox (34.11pt too wide) in alignment at lines 7686--7710
- [] [] [] [] [] 
- []
-
-
-Overfull \hbox (34.11pt too wide) in alignment at lines 7710--7728
- [] [] [] [] [] 
- []
-
-[233] [234] [235]
-Overfull \hbox (34.11pt too wide) in alignment at lines 7732--7737
- [] [] [] [] [] 
- []
-
-
-Overfull \hbox (34.11pt too wide) in alignment at lines 7737--7742
- [] [] [] [] [] 
- []
-
-
-Overfull \hbox (34.11pt too wide) in alignment at lines 7742--7744
- [] [] [] [] [] 
- []
-
-
-Overfull \hbox (34.11pt too wide) in alignment at lines 7744--7746
- [] [] [] [] [] 
- []
-
-
-Overfull \hbox (34.11pt too wide) in alignment at lines 7746--7770
- [] [] [] [] [] 
- []
-
-
-Overfull \hbox (34.11pt too wide) in alignment at lines 7770--7794
- [] [] [] [] [] 
- []
-
-
-Overfull \hbox (34.11pt too wide) in alignment at lines 7794--7818
- [] [] [] [] [] 
- []
-
-[236]
-Overfull \hbox (34.11pt too wide) in alignment at lines 7818--7842
- [] [] [] [] [] 
- []
-
-[237]
-Overfull \hbox (34.11pt too wide) in alignment at lines 7842--7851
- [] [] [] [] [] 
- []
-
-[238] [239] [240] [241] [242] [243] [244] [245] [246] [247] [248] [249] [250] [
-251] [252]
-<causal_forest_memo_files/figure-latex/unnamed-chunk-3-5.pdf, id=1325, 542.025p
-t x 317.185pt>
-File: causal_forest_memo_files/figure-latex/unnamed-chunk-3-5.pdf Graphic file 
-(type pdf)
-<use causal_forest_memo_files/figure-latex/unnamed-chunk-3-5.pdf>
-Package pdftex.def Info: causal_forest_memo_files/figure-latex/unnamed-chunk-3-
-5.pdf  used on input line 8323.
-(pdftex.def)             Requested size: 505.90584pt x 296.04858pt.
-<causal_forest_memo_files/figure-latex/unnamed-chunk-3-6.pdf, id=1326, 542.025p
-t x 317.185pt>
-File: causal_forest_memo_files/figure-latex/unnamed-chunk-3-6.pdf Graphic file 
-(type pdf)
-<use causal_forest_memo_files/figure-latex/unnamed-chunk-3-6.pdf>
-Package pdftex.def Info: causal_forest_memo_files/figure-latex/unnamed-chunk-3-
-6.pdf  used on input line 8325.
-(pdftex.def)             Requested size: 505.90584pt x 296.04858pt.
-[253 <./causal_forest_memo_files/figure-latex/unnamed-chunk-3-5.pdf> <./causal_
-forest_memo_files/figure-latex/unnamed-chunk-3-6.pdf>]
-Overfull \hbox (34.11pt too wide) in alignment at lines 8329--8334
- [] [] [] [] [] 
- []
-
-
-Overfull \hbox (34.11pt too wide) in alignment at lines 8334--8339
- [] [] [] [] [] 
- []
-
-
-Overfull \hbox (34.11pt too wide) in alignment at lines 8339--8341
- [] [] [] [] [] 
- []
-
-
-Overfull \hbox (34.11pt too wide) in alignment at lines 8341--8343
- [] [] [] [] [] 
- []
-
-
-Overfull \hbox (34.11pt too wide) in alignment at lines 8343--8365
- [] [] [] [] [] 
- []
-
-
-Overfull \hbox (34.11pt too wide) in alignment at lines 8365--8386
- [] [] [] [] [] 
- []
-
-
-Overfull \hbox (34.11pt too wide) in alignment at lines 8386--8407
- [] [] [] [] [] 
- []
-
-
-Overfull \hbox (34.11pt too wide) in alignment at lines 8407--8427
- [] [] [] [] [] 
- []
-
-[254]
-Overfull \hbox (34.11pt too wide) in alignment at lines 8427--8447
- [] [] [] [] [] 
- []
-
-
-Overfull \hbox (34.11pt too wide) in alignment at lines 8447--8468
- [] [] [] [] [] 
- []
-
-[255]
-Overfull \hbox (34.11pt too wide) in alignment at lines 8468--8488
- [] [] [] [] [] 
- []
-
-
-Overfull \hbox (34.11pt too wide) in alignment at lines 8488--8508
- [] [] [] [] [] 
- []
-
-
-Overfull \hbox (34.11pt too wide) in alignment at lines 8508--8528
- [] [] [] [] [] 
- []
-
-[256]
-Overfull \hbox (34.11pt too wide) in alignment at lines 8528--8546
- [] [] [] [] [] 
- []
-
-[257] [258]
-Overfull \hbox (34.11pt too wide) in alignment at lines 8550--8555
- [] [] [] [] [] 
- []
-
-
-Overfull \hbox (34.11pt too wide) in alignment at lines 8555--8560
- [] [] [] [] [] 
- []
-
-
-Overfull \hbox (34.11pt too wide) in alignment at lines 8560--8562
- [] [] [] [] [] 
- []
-
-
-Overfull \hbox (34.11pt too wide) in alignment at lines 8562--8564
- [] [] [] [] [] 
- []
-
-
-Overfull \hbox (34.11pt too wide) in alignment at lines 8564--8586
- [] [] [] [] [] 
- []
-
-[259]
-Overfull \hbox (34.11pt too wide) in alignment at lines 8590--8595
- [] [] [] [] [] 
- []
-
-
-Overfull \hbox (34.11pt too wide) in alignment at lines 8595--8600
- [] [] [] [] [] 
- []
-
-
-Overfull \hbox (34.11pt too wide) in alignment at lines 8600--8602
- [] [] [] [] [] 
- []
-
-
-Overfull \hbox (34.11pt too wide) in alignment at lines 8602--8604
- [] [] [] [] [] 
- []
-
-
-Overfull \hbox (34.11pt too wide) in alignment at lines 8604--8628
- [] [] [] [] [] 
- []
-
-
-Overfull \hbox (34.11pt too wide) in alignment at lines 8628--8652
- [] [] [] [] [] 
- []
-
-
-Overfull \hbox (34.11pt too wide) in alignment at lines 8652--8670
- [] [] [] [] [] 
- []
-
-[260] [261] [262]
-Overfull \hbox (34.11pt too wide) in alignment at lines 8674--8679
- [] [] [] [] [] 
- []
-
-
-Overfull \hbox (34.11pt too wide) in alignment at lines 8679--8684
- [] [] [] [] [] 
- []
-
-
-Overfull \hbox (34.11pt too wide) in alignment at lines 8684--8686
- [] [] [] [] [] 
- []
-
-
-Overfull \hbox (34.11pt too wide) in alignment at lines 8686--8688
- [] [] [] [] [] 
- []
-
-
-Overfull \hbox (34.11pt too wide) in alignment at lines 8688--8712
- [] [] [] [] [] 
- []
-
-
-Overfull \hbox (34.11pt too wide) in alignment at lines 8712--8736
- [] [] [] [] [] 
- []
-
-
-Overfull \hbox (34.11pt too wide) in alignment at lines 8736--8760
- [] [] [] [] [] 
- []
-
-[263]
-Overfull \hbox (34.11pt too wide) in alignment at lines 8760--8784
- [] [] [] [] [] 
- []
-
-[264]
-Overfull \hbox (34.11pt too wide) in alignment at lines 8784--8793
- [] [] [] [] [] 
- []
-
-[265] [266] [267] [268] [269] [270] [271] [272] [273] [274] [275] [276] [277] [
-278] [279]
-<causal_forest_memo_files/figure-latex/unnamed-chunk-3-7.pdf, id=1470, 542.025p
-t x 317.185pt>
-File: causal_forest_memo_files/figure-latex/unnamed-chunk-3-7.pdf Graphic file 
-(type pdf)
-<use causal_forest_memo_files/figure-latex/unnamed-chunk-3-7.pdf>
-Package pdftex.def Info: causal_forest_memo_files/figure-latex/unnamed-chunk-3-
-7.pdf  used on input line 9265.
-(pdftex.def)             Requested size: 505.90584pt x 296.04858pt.
-<causal_forest_memo_files/figure-latex/unnamed-chunk-3-8.pdf, id=1471, 542.025p
-t x 317.185pt>
-File: causal_forest_memo_files/figure-latex/unnamed-chunk-3-8.pdf Graphic file 
-(type pdf)
-<use causal_forest_memo_files/figure-latex/unnamed-chunk-3-8.pdf>
-Package pdftex.def Info: causal_forest_memo_files/figure-latex/unnamed-chunk-3-
-8.pdf  used on input line 9267.
-(pdftex.def)             Requested size: 505.90584pt x 296.04858pt.
-[280 <./causal_forest_memo_files/figure-latex/unnamed-chunk-3-7.pdf> <./causal_
-forest_memo_files/figure-latex/unnamed-chunk-3-8.pdf>]
-Overfull \hbox (34.11pt too wide) in alignment at lines 9271--9276
- [] [] [] [] [] 
- []
-
-
-Overfull \hbox (34.11pt too wide) in alignment at lines 9276--9281
- [] [] [] [] [] 
- []
-
-
-Overfull \hbox (34.11pt too wide) in alignment at lines 9281--9283
- [] [] [] [] [] 
- []
-
-
-Overfull \hbox (34.11pt too wide) in alignment at lines 9283--9285
- [] [] [] [] [] 
- []
-
-
-Overfull \hbox (34.11pt too wide) in alignment at lines 9285--9307
- [] [] [] [] [] 
- []
-
-
-Overfull \hbox (34.11pt too wide) in alignment at lines 9307--9328
- [] [] [] [] [] 
- []
-
-
-Overfull \hbox (34.11pt too wide) in alignment at lines 9328--9349
- [] [] [] [] [] 
- []
-
-
-Overfull \hbox (34.11pt too wide) in alignment at lines 9349--9369
- [] [] [] [] [] 
- []
-
-[281]
-Overfull \hbox (34.11pt too wide) in alignment at lines 9369--9389
- [] [] [] [] [] 
- []
-
-
-Overfull \hbox (34.11pt too wide) in alignment at lines 9389--9410
- [] [] [] [] [] 
- []
-
-[282]
-Overfull \hbox (34.11pt too wide) in alignment at lines 9410--9430
- [] [] [] [] [] 
- []
-
-
-Overfull \hbox (34.11pt too wide) in alignment at lines 9430--9450
- [] [] [] [] [] 
- []
-
-
-Overfull \hbox (34.11pt too wide) in alignment at lines 9450--9470
- [] [] [] [] [] 
- []
-
-[283]
-Overfull \hbox (34.11pt too wide) in alignment at lines 9470--9488
- [] [] [] [] [] 
- []
-
-[284] [285]
-Overfull \hbox (34.11pt too wide) in alignment at lines 9492--9497
- [] [] [] [] [] 
- []
-
-
-Overfull \hbox (34.11pt too wide) in alignment at lines 9497--9502
- [] [] [] [] [] 
- []
-
-
-Overfull \hbox (34.11pt too wide) in alignment at lines 9502--9504
- [] [] [] [] [] 
- []
-
-
-Overfull \hbox (34.11pt too wide) in alignment at lines 9504--9506
- [] [] [] [] [] 
- []
-
-
-Overfull \hbox (34.11pt too wide) in alignment at lines 9506--9528
- [] [] [] [] [] 
- []
-
-[286]
-Overfull \hbox (34.11pt too wide) in alignment at lines 9532--9537
- [] [] [] [] [] 
- []
-
-
-Overfull \hbox (34.11pt too wide) in alignment at lines 9537--9542
- [] [] [] [] [] 
- []
-
-
-Overfull \hbox (34.11pt too wide) in alignment at lines 9542--9544
- [] [] [] [] [] 
- []
-
-
-Overfull \hbox (34.11pt too wide) in alignment at lines 9544--9546
- [] [] [] [] [] 
- []
-
-
-Overfull \hbox (34.11pt too wide) in alignment at lines 9546--9570
- [] [] [] [] [] 
- []
-
-
-Overfull \hbox (34.11pt too wide) in alignment at lines 9570--9594
- [] [] [] [] [] 
- []
-
-
-Overfull \hbox (34.11pt too wide) in alignment at lines 9594--9612
- [] [] [] [] [] 
- []
-
-[287] [288] [289]
-Overfull \hbox (34.11pt too wide) in alignment at lines 9616--9621
- [] [] [] [] [] 
- []
-
-
-Overfull \hbox (34.11pt too wide) in alignment at lines 9621--9626
- [] [] [] [] [] 
- []
-
-
-Overfull \hbox (34.11pt too wide) in alignment at lines 9626--9628
- [] [] [] [] [] 
- []
-
-
-Overfull \hbox (34.11pt too wide) in alignment at lines 9628--9630
- [] [] [] [] [] 
- []
-
-
-Overfull \hbox (34.11pt too wide) in alignment at lines 9630--9654
- [] [] [] [] [] 
- []
-
-
-Overfull \hbox (34.11pt too wide) in alignment at lines 9654--9678
- [] [] [] [] [] 
- []
-
-
-Overfull \hbox (34.11pt too wide) in alignment at lines 9678--9702
- [] [] [] [] [] 
- []
-
-[290]
-Overfull \hbox (34.11pt too wide) in alignment at lines 9702--9726
- [] [] [] [] [] 
- []
-
-[291]
-Overfull \hbox (34.11pt too wide) in alignment at lines 9726--9735
- [] [] [] [] [] 
- []
-
-[292] [293] [294] [295] [296] [297] [298] [299] [300] [301] [302] [303] [304] [
-305] [306]
-<causal_forest_memo_files/figure-latex/unnamed-chunk-3-9.pdf, id=1614, 542.025p
-t x 317.185pt>
-File: causal_forest_memo_files/figure-latex/unnamed-chunk-3-9.pdf Graphic file 
-(type pdf)
-<use causal_forest_memo_files/figure-latex/unnamed-chunk-3-9.pdf>
-Package pdftex.def Info: causal_forest_memo_files/figure-latex/unnamed-chunk-3-
-9.pdf  used on input line 10207.
-(pdftex.def)             Requested size: 505.90584pt x 296.04858pt.
-<causal_forest_memo_files/figure-latex/unnamed-chunk-3-10.pdf, id=1615, 542.025
-pt x 317.185pt>
-File: causal_forest_memo_files/figure-latex/unnamed-chunk-3-10.pdf Graphic file
- (type pdf)
-<use causal_forest_memo_files/figure-latex/unnamed-chunk-3-10.pdf>
-Package pdftex.def Info: causal_forest_memo_files/figure-latex/unnamed-chunk-3-
-10.pdf  used on input line 10209.
-(pdftex.def)             Requested size: 505.90584pt x 296.04858pt.
-[307 <./causal_forest_memo_files/figure-latex/unnamed-chunk-3-9.pdf> <./causal_
-forest_memo_files/figure-latex/unnamed-chunk-3-10.pdf>]
-Overfull \hbox (34.11pt too wide) in alignment at lines 10213--10218
- [] [] [] [] [] 
- []
-
-
-Overfull \hbox (34.11pt too wide) in alignment at lines 10218--10223
- [] [] [] [] [] 
- []
-
-
-Overfull \hbox (34.11pt too wide) in alignment at lines 10223--10225
- [] [] [] [] [] 
- []
-
-
-Overfull \hbox (34.11pt too wide) in alignment at lines 10225--10227
- [] [] [] [] [] 
- []
-
-
-Overfull \hbox (34.11pt too wide) in alignment at lines 10227--10249
- [] [] [] [] [] 
- []
-
-
-Overfull \hbox (34.11pt too wide) in alignment at lines 10249--10270
- [] [] [] [] [] 
- []
-
-
-Overfull \hbox (34.11pt too wide) in alignment at lines 10270--10291
- [] [] [] [] [] 
- []
-
-
-Overfull \hbox (34.11pt too wide) in alignment at lines 10291--10311
- [] [] [] [] [] 
- []
-
-[308]
-Overfull \hbox (34.11pt too wide) in alignment at lines 10311--10331
- [] [] [] [] [] 
- []
-
-
-Overfull \hbox (34.11pt too wide) in alignment at lines 10331--10352
- [] [] [] [] [] 
- []
-
-[309]
-Overfull \hbox (34.11pt too wide) in alignment at lines 10352--10372
- [] [] [] [] [] 
- []
-
-
-Overfull \hbox (34.11pt too wide) in alignment at lines 10372--10392
- [] [] [] [] [] 
- []
-
-
-Overfull \hbox (34.11pt too wide) in alignment at lines 10392--10412
- [] [] [] [] [] 
- []
-
-[310]
-Overfull \hbox (34.11pt too wide) in alignment at lines 10412--10430
- [] [] [] [] [] 
- []
-
-[311] [312]
-Overfull \hbox (34.11pt too wide) in alignment at lines 10434--10439
- [] [] [] [] [] 
- []
-
-
-Overfull \hbox (34.11pt too wide) in alignment at lines 10439--10444
- [] [] [] [] [] 
- []
-
-
-Overfull \hbox (34.11pt too wide) in alignment at lines 10444--10446
- [] [] [] [] [] 
- []
-
-
-Overfull \hbox (34.11pt too wide) in alignment at lines 10446--10448
- [] [] [] [] [] 
- []
-
-
-Overfull \hbox (34.11pt too wide) in alignment at lines 10448--10470
- [] [] [] [] [] 
- []
-
-[313]
-Overfull \hbox (34.11pt too wide) in alignment at lines 10474--10479
- [] [] [] [] [] 
- []
-
-
-Overfull \hbox (34.11pt too wide) in alignment at lines 10479--10484
- [] [] [] [] [] 
- []
-
-
-Overfull \hbox (34.11pt too wide) in alignment at lines 10484--10486
- [] [] [] [] [] 
- []
-
-
-Overfull \hbox (34.11pt too wide) in alignment at lines 10486--10488
- [] [] [] [] [] 
- []
-
-
-Overfull \hbox (34.11pt too wide) in alignment at lines 10488--10512
- [] [] [] [] [] 
- []
-
-
-Overfull \hbox (34.11pt too wide) in alignment at lines 10512--10536
- [] [] [] [] [] 
- []
-
-
-Overfull \hbox (34.11pt too wide) in alignment at lines 10536--10554
- [] [] [] [] [] 
- []
-
-[314] [315] [316]
-Overfull \hbox (34.11pt too wide) in alignment at lines 10558--10563
- [] [] [] [] [] 
- []
-
-
-Overfull \hbox (34.11pt too wide) in alignment at lines 10563--10568
- [] [] [] [] [] 
- []
-
-
-Overfull \hbox (34.11pt too wide) in alignment at lines 10568--10570
- [] [] [] [] [] 
- []
-
-
-Overfull \hbox (34.11pt too wide) in alignment at lines 10570--10572
- [] [] [] [] [] 
- []
-
-
-Overfull \hbox (34.11pt too wide) in alignment at lines 10572--10596
- [] [] [] [] [] 
- []
-
-
-Overfull \hbox (34.11pt too wide) in alignment at lines 10596--10620
- [] [] [] [] [] 
- []
-
-
-Overfull \hbox (34.11pt too wide) in alignment at lines 10620--10644
- [] [] [] [] [] 
- []
-
-[317]
-Overfull \hbox (34.11pt too wide) in alignment at lines 10644--10668
- [] [] [] [] [] 
- []
-
-[318]
-Overfull \hbox (34.11pt too wide) in alignment at lines 10668--10677
- [] [] [] [] [] 
- []
-
-[319] [320] [321] [322] [323] [324] [325] [326] [327] [328] [329] [330] [331] [
-332] [333]
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 11149.
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 11149.
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 7381.
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 7381.
 (./causal_forest_memo.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 11149.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 7381.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 7381.
 
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 11149
-.
 Package rerunfilecheck Info: File `causal_forest_memo.out' has not changed.
 (rerunfilecheck)             Checksum: FC059EA8DA513D673CE5AAE751735989;2174.
 
 LaTeX Warning: There were multiply-defined labels.
 
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 11149.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 7381.
  ) 
 Here is how much of TeX's memory you used:
- 14586 strings out of 492641
- 213923 string characters out of 6128839
- 378096 words of memory out of 5000000
- 17729 multiletter control sequences out of 15000+600000
- 55235 words of font info for 95 fonts, out of 8000000 for 9000
+ 14378 strings out of 492641
+ 210240 string characters out of 6128839
+ 375414 words of memory out of 5000000
+ 17665 multiletter control sequences out of 15000+600000
+ 55069 words of font info for 93 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  34i,9n,40p,530b,438s stack positions out of 5000i,500n,10000p,200000b,80000s
 {/export/opt/texlive/2018/texmf-dist/fonts/enc/dvips/lm/lm-ec.enc}{/export/op
@@ -3217,10 +2346,10 @@ c/lm/lmbx12.pfb></export/opt/texlive/2018/texmf-dist/fonts/type1/public/lm/lmmi
 xport/opt/texlive/2018/texmf-dist/fonts/type1/public/lm/lmr17.pfb></export/opt/
 texlive/2018/texmf-dist/fonts/type1/public/lm/lmri10.pfb></export/opt/texlive/2
 018/texmf-dist/fonts/type1/public/lm/lmtt10.pfb>
-Output written on causal_forest_memo.pdf (333 pages, 3452349 bytes).
+Output written on causal_forest_memo.pdf (225 pages, 1272053 bytes).
 PDF statistics:
- 1896 PDF objects out of 2073 (max. 8388607)
- 1489 compressed objects within 15 object streams
- 444 named destinations out of 1000 (max. 500000)
- 12470 words of extra memory for PDF output out of 14400 (max. 10000000)
+ 1321 PDF objects out of 1440 (max. 8388607)
+ 1025 compressed objects within 11 object streams
+ 304 named destinations out of 1000 (max. 500000)
+ 12430 words of extra memory for PDF output out of 14400 (max. 10000000)
 

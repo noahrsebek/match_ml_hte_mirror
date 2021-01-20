@@ -316,7 +316,7 @@ for (overall_seed in overall_seeds){
   
   start_time <- Sys.time()
   # setting up furr plan
-  plan(multisession, workers = 11)
+  plan(multisession, workers = 5)#11)
   all_splitsample_models <- future_map(seeds, run_splitsample_models,
                                        .options = future_options(scheduling=Inf, seed=T))
   
